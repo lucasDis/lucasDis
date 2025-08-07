@@ -3,8 +3,7 @@
 ¡Hola! Soy **Lucas Ruiz Díaz**, un diseñador gráfico y desarrollador web en formación, apasionado por crear experiencias digitales impactantes y funcionales. Estoy comenzando mi camino en la programación, combinando mi experiencia en diseño con habilidades emergentes en desarrollo web. Mis proyectos, aunque pocos, reflejan mi compromiso con la calidad, la creatividad y la atención al detalle.
 
 ## Contacto
-- **Correo**: lg.ruizdiaz@hotmail.com  
-- **Teléfono**: +54 3773 461508  
+- **Correo**: lg_ruizdiaz@hotmail.com   
 - **LinkedIn**: [linkedin.com/in/Lucas-Gonzalo-Ruiz-Diaz](https://linkedin.com/in/Lucas-Gonzalo-Ruiz-Diaz)  
 - **Ubicación**: Corrientes, Argentina  
 
