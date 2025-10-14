@@ -42,7 +42,7 @@ Combino mi creatividad con una visión técnica orientada a la experiencia del u
 ---
 
 ### 🎓 Educación
-**Licenciatura en Diseño Gráfico** – Universidad Cuenca del Plata *(en curso)*
+**Licenciatura en Diseño Gráfico** – Universidad Cuenca del Plata
 
 ---
 
