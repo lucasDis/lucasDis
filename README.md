@@ -8,8 +8,8 @@
 ---
 
 ### 🧩 Sobre mí  
-Apasionado por crear **experiencias digitales atractivas y funcionales**, uniendo diseño y desarrollo web.  
-Combino mi creatividad con una visión técnica orientada a la experiencia del usuario (UI/UX).
+Apasionado por crear **experiencias digitales funcionales y atractivas**, combinando diseño visual y desarrollo web.  
+Mi objetivo es unir creatividad, estructura y tecnología para lograr proyectos con impacto real.
 
 ---
 
@@ -25,7 +25,7 @@ Combino mi creatividad con una visión técnica orientada a la experiencia del u
 #### 🎨 Diseño Gráfico
 <p align="center">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=photoshop,illustrator,premiere,blender,coreldraw,sketchup" />
+    <img src="https://skillicons.dev/icons?i=photoshop,illustrator,premiere,blender,sketchup" />
   </a>
 </p>
 
@@ -42,19 +42,32 @@ Combino mi creatividad con una visión técnica orientada a la experiencia del u
 ---
 
 ### 🎓 Educación
-🎓 **Licenciatura en Diseño Gráfico** – Universidad Cuenca del Plata *(en curso)*
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=figma" height="45" />
+  </a>
+</p>
+
+**Licenciatura en Diseño Gráfico** – Universidad Cuenca del Plata *(en curso)*
 
 ---
 
 ### 🚀 Proyectos
 - **Easy Life Marketing:** sitio web responsivo optimizado para SEO.  
-- **Grow!:** identidad visual completa y branding corporativo.  
+- **Grow!:** identidad visual y branding corporativo.  
 - **Canjear App:** diseño UI/UX para aplicación de comercio electrónico.
 
 ---
 
-### 🌍 Idiomas
-🇪🇸 Español (nativo) · 🇬🇧 Inglés (C1)
+### 🌐 Idiomas
+<p align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=eslint,english" height="45" />
+  </a>
+</p>
+
+- Español (nativo)  
+- Inglés (C1 – avanzado)
 
 ---
 
@@ -66,4 +79,10 @@ Combino mi creatividad con una visión técnica orientada a la experiencia del u
   <a href="https://linkedin.com/in/Lucas-Gonzalo-Ruiz-Diaz">
     <img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white"/>
   </a>
+</p>
+
+---
+
+<p align="center">
+  <em>"Diseñar es combinar lógica y emoción para crear algo que conecte con las personas."</em>
 </p>
