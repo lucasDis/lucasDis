@@ -8,8 +8,8 @@
 ---
 
 ### 🧩 Sobre mí  
-Apasionado por crear **experiencias digitales funcionales y atractivas**, combinando diseño visual y desarrollo web.  
-Mi objetivo es unir creatividad, estructura y tecnología para lograr proyectos con impacto real.
+Apasionado por crear **experiencias digitales atractivas y funcionales**, uniendo diseño y desarrollo web.  
+Combino mi creatividad con una visión técnica orientada a la experiencia del usuario (UI/UX).
 
 ---
 
@@ -42,32 +42,19 @@ Mi objetivo es unir creatividad, estructura y tecnología para lograr proyectos 
 ---
 
 ### 🎓 Educación
-<p align="center">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=figma" height="45" />
-  </a>
-</p>
-
 **Licenciatura en Diseño Gráfico** – Universidad Cuenca del Plata *(en curso)*
 
 ---
 
 ### 🚀 Proyectos
 - **Easy Life Marketing:** sitio web responsivo optimizado para SEO.  
-- **Grow!:** identidad visual y branding corporativo.  
+- **Grow!:** identidad visual completa y branding corporativo.  
 - **Canjear App:** diseño UI/UX para aplicación de comercio electrónico.
 
 ---
 
-### 🌐 Idiomas
-<p align="center">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=eslint,english" height="45" />
-  </a>
-</p>
-
-- Español (nativo)  
-- Inglés (C1 – avanzado)
+### 🌍 Idiomas
+🇪🇸 Español (nativo) · 🇬🇧 Inglés (C1)
 
 ---
 
@@ -81,8 +68,3 @@ Mi objetivo es unir creatividad, estructura y tecnología para lograr proyectos 
   </a>
 </p>
 
----
-
-<p align="center">
-  <em>"Diseñar es combinar lógica y emoción para crear algo que conecte con las personas."</em>
-</p>
