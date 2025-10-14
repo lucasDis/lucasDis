@@ -1,57 +1,74 @@
-# Lucas Ruiz Díaz - Perfil
+<h1 align="center">👋 ¡Hola! Soy Lucas Ruiz Díaz</h1>
 
-¡Hola! Soy **Lucas Ruiz Díaz**, un diseñador gráfico y desarrollador web en formación, apasionado por crear experiencias digitales impactantes y funcionales. Estoy comenzando mi camino en la programación, combinando mi experiencia en diseño con habilidades emergentes en desarrollo web. Mis proyectos, aunque pocos, reflejan mi compromiso con la calidad, la creatividad y la atención al detalle.
+<p align="center">
+🎨 <strong>Diseñador Gráfico</strong> | 💻 <strong>Desarrollador Web en formación</strong> <br>
+📍 Corrientes, Argentina · ✉️ <a href="mailto:lg_ruizdiaz@hotmail.com">lg_ruizdiaz@hotmail.com</a>  
+</p>
 
-## Contacto
-- **Correo**: lg_ruizdiaz@hotmail.com   
-- **LinkedIn**: [linkedin.com/in/Lucas-Gonzalo-Ruiz-Diaz](https://linkedin.com/in/Lucas-Gonzalo-Ruiz-Diaz)  
-- **Ubicación**: Corrientes, Argentina  
+---
 
-## Habilidades
-### Desarrollo Web
-- **Lenguajes y tecnologías**: HTML, CSS, JavaScript (nivel básico), SQL
-- **Frameworks y herramientas**: Bootstrap, WordPress (Elementor), Figma  
-- **Enfoque**: Diseño de interfaces (UI), experiencia de usuario (UX), desarrollo de sitios web responsivos  
+### 🧩 Sobre mí  
+Apasionado por crear experiencias digitales donde **el diseño y la funcionalidad se encuentran**.  
+Combino mi formación en diseño gráfico con mis primeras experiencias en desarrollo web.  
 
-### Diseño Gráfico
-- **Herramientas**: Adobe Photoshop (6+ años), Adobe Illustrator (5 años), Adobe Premiere (2 años), Blender (2 años), SketchUp (3 años), CorelDraw (1 año)  
-- **Especialidades**: Diseño vectorial, edición de video, modelado 3D, creación de logotipos, identidad corporativa, y contenido para redes sociales  
+---
 
-### Idiomas
-- **Español**: Nativo  
-- **Inglés**: Avanzado (C1)  
+### ⚙️ Habilidades
 
-## Experiencia Profesional
-### Easy Life Marketing - Diseñador Web y Gráfico  
-*Octubre 2024 - Enero 2025, España (Remoto)*  
-- Creé sitios web atractivos y funcionales utilizando WordPress y Elementor, optimizando la experiencia de usuario y el SEO.  
-- Diseñé logotipos únicos y gestioné plugins para mejorar la funcionalidad de sitios web.  
-- Realicé análisis de mercado y verificación de dominios para proyectos web.  
-- Colaboré con equipos de marketing digital para garantizar coherencia en la identidad de marca.
+#### 💻 Desarrollo Web  
+![HTML](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![SQL](https://img.shields.io/badge/SQL-003B57?logo=postgresql&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=white)
+![WordPress](https://img.shields.io/badge/WordPress-21759B?logo=wordpress&logoColor=white)
+![Figma](https://img.shields.io/badge/Figma-F24E1E?logo=figma&logoColor=white)
 
-### Grow! - Diseñador Gráfico Principal  
-*Febrero 2024 - Finalizado*  
-- Lideré la maquetación y diseño de sitios web, folletos, banners y publicaciones para redes sociales.  
-- Desarrollé identidades corporativas, incluyendo logotipos y manuales de marca.  
-- Trabajé con equipos de desarrollo web para implementar diseños funcionales y visualmente coherentes.
+#### 🎨 Diseño Gráfico  
+![Photoshop](https://img.shields.io/badge/Photoshop-31A8FF?logo=adobephotoshop&logoColor=white)
+![Illustrator](https://img.shields.io/badge/Illustrator-FF9A00?logo=adobeillustrator&logoColor=white)
+![Premiere](https://img.shields.io/badge/Premiere-9999FF?logo=adobepremierepro&logoColor=white)
+![Blender](https://img.shields.io/badge/Blender-F5792A?logo=blender&logoColor=white)
+![CorelDraw](https://img.shields.io/badge/CorelDRAW-46A247?logo=coreldraw&logoColor=white)
+![SketchUp](https://img.shields.io/badge/SketchUp-005F9E?logo=sketchup&logoColor=white)
 
-### SynergyIT - Diseñador Gráfico (Proyecto Canjear)  
-*Enero 2024 - Abril 2024*  
-- Diseñé interfaces de usuario (UI) para una aplicación de comercio electrónico, creando wireframes, prototipos y diseños de alta fidelidad.  
-- Optimicé la experiencia de usuario (UX) para garantizar una navegación intuitiva.  
-- Colaboré con programadores en un entorno ágil para integrar diseños con código funcional.
+---
 
-## Educación
-- **Licenciatura en Diseño Gráfico**  
-  Universidad Cuenca del Plata, en curso
+### 💼 Experiencia
 
-## Proyectos Destacados
-Aunque estoy comenzando en programación, mis proyectos reflejan mi dedicación y enfoque en la calidad:  
-- **Sitio Web para Easy Life Marketing**: Desarrollé un sitio web responsivo usando WordPress y Elementor, optimizado para SEO y con una interfaz intuitiva.  
-- **Identidad Corporativa para Grow!**: Creé logotipos y manuales de marca para clientes, asegurando coherencia visual y profesionalismo.  
-- **Interfaz de Canjear (SynergyIT)**: Diseñé la UI/UX de una aplicación de comercio electrónico, incluyendo pantallas de navegación y pago, integradas con un equipo de desarrollo.
+| Empresa | Rol | Periodo |
+|----------|------|----------|
+| 🧠 **Easy Life Marketing** | Diseñador Web y Gráfico | Oct 2024 – Ene 2025 |
+| 🚀 **Grow!** | Diseñador Gráfico Principal | Feb 2024 – Finalizado |
+| 🧩 **SynergyIT (Canjear)** | Diseñador UI/UX | Ene 2024 – Abr 2024 |
 
-## Sobre Mí
-Soy una persona creativa, detallista y comprometida con aprender y crecer en el mundo del desarrollo web y la programación. Mi experiencia en diseño gráfico me permite abordar proyectos con una perspectiva única, combinando estética y funcionalidad. Estoy emocionado por seguir desarrollando mis habilidades técnicas y contribuir a proyectos innovadores.
+---
 
-¡Gracias por visitar mi perfil! Si crees que puedo aportar valor a tu equipo o proyecto, no dudes en contactarme.
+### 🎓 Educación
+🎓 **Licenciatura en Diseño Gráfico** – Universidad Cuenca del Plata *(en curso)*  
+
+---
+
+### 🚀 Proyectos
+- **Easy Life Marketing:** sitio web responsive y optimizado SEO.  
+- **Grow!:** identidad visual y branding corporativo.  
+- **Canjear App:** diseño UI/UX para app de e-commerce.  
+
+---
+
+### 🌍 Idiomas
+🇪🇸 Español (nativo) · 🇬🇧 Inglés (C1)
+
+---
+
+### 📫 Conectemos  
+<p align="center">
+  <a href="mailto:lg_ruizdiaz@hotmail.com"><img src="https://img.shields.io/badge/Email-0078D4?style=for-the-badge&logo=gmail&logoColor=white"/></a>
+  <a href="https://linkedin.com/in/Lucas-Gonzalo-Ruiz-Diaz"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white"/></a>
+</p>
+
+---
+
+<p align="center">
+  <em>"Diseñar es combinar lógica y emoción para crear algo que conecte con las personas."</em>
+</p>
