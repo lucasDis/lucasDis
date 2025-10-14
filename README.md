@@ -36,7 +36,7 @@ Combino mi creatividad con una visión técnica orientada a la experiencia del u
 | Empresa | Rol | Periodo |
 |----------|------|----------|
 | 🧠 **Easy Life Marketing** | Diseñador Web y Gráfico | Oct 2024 – Ene 2025 |
-| 🚀 **Grow!** | Diseñador Gráfico Principal | Feb 2024 – Finalizado |
+| 🚀 **Grow!** | Diseñador Gráfico Principal | Feb 2024 – May 2025 |
 | 🧩 **SynergyIT (Canjear)** | Diseñador UI/UX | Ene 2024 – Abr 2024 |
 
 ---
