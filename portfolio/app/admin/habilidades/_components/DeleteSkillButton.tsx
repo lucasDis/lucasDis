@@ -1,0 +1,40 @@
+"use client";
+
+import { useTransition } from "react";
+import { deleteSkill } from "../actions";
+
+/**
+ * Delete button with a `confirm()` prompt. Server action does the
+ * heavy lifting and redirects back to the list.
+ */
+export function DeleteSkillButton({
+  id,
+  name,
+}: {
+  id: string;
+  name: string;
+}) {
+  const [isPending, startTransition] = useTransition();
+
+  function handleClick() {
+    if (
+      !confirm(`¿Eliminar "${name}"? Esta acción no se puede deshacer.`)
+    ) {
+      return;
+    }
+    startTransition(async () => {
+      await deleteSkill(id);
+    });
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={isPending}
+      className="cursor-pointer text-body-sm text-error underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {isPending ? "Eliminando…" : "Eliminar"}
+    </button>
+  );
+}
