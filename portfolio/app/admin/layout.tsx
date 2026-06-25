@@ -17,6 +17,7 @@ const NAV = [
   { href: "/admin/experiencia", label: "Experiencia" },
   { href: "/admin/educacion", label: "Educación" },
   { href: "/admin/habilidades", label: "Habilidades" },
+  { href: "/admin/configuracion", label: "Configuración" },
   { href: "/admin/perfil", label: "Perfil" },
   { href: "/admin/mensajes", label: "Mensajes" },
 ];
