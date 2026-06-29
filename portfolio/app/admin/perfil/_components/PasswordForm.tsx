@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/Button";
-import { Field, inputClass } from "@/components/admin/Field";
+import { Field, inputClass } from "@/components/ui/Field";
 import { changePassword, type ActionResult } from "../actions";
 import {
   passwordSchema,

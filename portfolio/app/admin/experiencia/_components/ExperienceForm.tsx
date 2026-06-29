@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/Button";
-import { Field, inputClass, textareaClass } from "@/components/admin/Field";
+import { Field, inputClass, textareaClass } from "@/components/ui/Field";
 import {
   createExperience,
   updateExperience,
