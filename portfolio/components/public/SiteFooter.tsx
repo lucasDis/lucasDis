@@ -26,12 +26,14 @@ interface SiteFooterProps {
   footerText: string;
 }
 
+// Anchors into the single-page home — kept in sync with SiteHeader's
+// NAV_LINKS and the section ids in components/public/home/*.
 const FOOTER_LINKS = [
-  { href: "/proyectos", label: "Proyectos" },
-  { href: "/experiencia", label: "Experiencia" },
-  { href: "/educacion", label: "Educación" },
-  { href: "/habilidades", label: "Habilidades" },
-  { href: "/contacto", label: "Contacto" },
+  { href: "/#proyectos", label: "Proyectos" },
+  { href: "/#sobre-mi", label: "Sobre mí" },
+  { href: "/#habilidades", label: "Habilidades" },
+  { href: "/#cv", label: "CV" },
+  { href: "/#contacto", label: "Contacto" },
 ];
 
 const SOCIAL_KEYS = [
