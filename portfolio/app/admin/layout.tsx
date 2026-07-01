@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { signOut } from "@/auth";
 import { auth } from "@/auth";
+import "@/app/globals.css";
 
 /**
  * Admin layout — sidebar + header + content area.
