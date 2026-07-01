@@ -545,3 +545,12 @@ body {
     transform: none;
   }
 }
+
+/* Hide default browser scrollbar globally */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+html::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}

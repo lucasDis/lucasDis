@@ -3,6 +3,14 @@ import type { ReactNode } from "react";
 import { signOut } from "@/auth";
 import { auth } from "@/auth";
 import "@/app/globals.css";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
 
 /**
  * Admin layout — sidebar + header + content area.
@@ -37,7 +45,7 @@ export default async function AdminLayout({
   const userName = session?.user?.name ?? "Admin";
 
   return (
-    <html lang="es" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="es" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full bg-canvas text-ink font-body" suppressHydrationWarning>
         <div className="flex min-h-screen bg-canvas">
       <aside className="hidden w-64 shrink-0 border-r border-hairline bg-surface-soft p-6 md:flex md:flex-col">

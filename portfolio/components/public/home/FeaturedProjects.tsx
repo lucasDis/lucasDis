@@ -61,8 +61,6 @@ interface FeaturedProjectsProps {
 
 const FILTER_CATEGORIES = PROJECT_FILTER_CATEGORIES;
 
-const ACCENTS = ["brand-pink", "brand-teal", "brand-lavender"] as const;
-
 export function FeaturedProjects({
   projects,
   labels,
@@ -146,11 +144,10 @@ export function FeaturedProjects({
         ) : (
           <>
             <div className="project-grid">
-              {filteredProjects.map((project, idx) => (
+              {filteredProjects.map((project) => (
                 <ProjectCardPreview
                   key={project._id}
                   project={project}
-                  accent={ACCENTS[idx % ACCENTS.length]}
                   onOpen={() => openModal(project)}
                   openDetailsLabel={labels.openDetailsTemplate.replace("{{title}}", project.title)}
                   categoryLabel={labels.categories[project.category] ?? project.category}
@@ -181,13 +178,11 @@ export function FeaturedProjects({
 
 function ProjectCardPreview({
   project,
-  accent,
   onOpen,
   openDetailsLabel,
   categoryLabel,
 }: {
   project: FeaturedProject;
-  accent: (typeof ACCENTS)[number];
   onOpen: () => void;
   openDetailsLabel: string;
   categoryLabel: string;
@@ -214,11 +209,6 @@ function ProjectCardPreview({
         ) : (
           <div className="project-card-preview-image bg-surface-strong" />
         )}
-        <span
-          aria-hidden="true"
-          className="project-card-preview-accent"
-          style={{ background: `var(--color-${accent})` }}
-        />
       </div>
 
       <div className="project-card-preview-body">

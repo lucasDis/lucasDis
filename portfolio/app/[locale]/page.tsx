@@ -16,10 +16,12 @@ import { SiteSettingsModel } from "@/models/SiteSettings";
 import { SkillModel } from "@/models/Skill";
 import { ExperienceModel } from "@/models/Experience";
 import { EducationModel } from "@/models/Education";
-import { HeroBand } from "@/components/public/HeroBand";
+import WarpShaderHero from "@/components/ui/wrap-shader";
+import Link from "next/link";
 import { SiteHeader } from "@/components/public/SiteHeader";
 import { SiteFooter } from "@/components/public/SiteFooter";
 import { BackgroundBlobs } from "@/components/public/BackgroundBlobs";
+import { FloatingScrollNav } from "@/components/public/FloatingScrollNav";
 import {
   FeaturedProjects,
   type FeaturedProject,
@@ -37,7 +39,6 @@ import {
   type EducationItem,
 } from "@/components/public/home/Resume";
 import { Contact } from "@/components/public/home/Contact";
-import { ButtonLink } from "@/components/ui/Button";
 import { getTranslation } from "@/lib/i18n/server";
 import { isSupportedLocale, defaultLocale } from "@/lib/i18n/settings";
 
@@ -111,19 +112,27 @@ export default async function Home({ params }: Props) {
 
       <BackgroundBlobs />
 
+      <FloatingScrollNav />
+
       <main className="flex-1">
-        <HeroBand
+        <WarpShaderHero
           eyebrow={t("hero.eyebrow")}
           title={t("hero.title")}
           subtitle={t("hero.subtitle")}
         >
-          <ButtonLink href={`/${resolvedLocale}/#proyectos`} variant="primary" size="default">
+          <Link
+            href={`/${resolvedLocale}/#proyectos`}
+            className="inline-flex h-11 items-center justify-center px-6 bg-on-dark text-primary rounded-pill hover:scale-105 transition-transform duration-300 font-semibold text-button"
+          >
             {t("hero.cta_projects")}
-          </ButtonLink>
-          <ButtonLink href={`/${resolvedLocale}/#contacto`} variant="secondary" size="default">
+          </Link>
+          <Link
+            href={`/${resolvedLocale}/#contacto`}
+            className="inline-flex h-11 items-center justify-center px-6 bg-white/15 backdrop-blur-sm border border-white/20 text-on-dark rounded-pill hover:bg-white/25 transition-all duration-300 hover:scale-105 font-semibold text-button"
+          >
             {t("hero.cta_contact")}
-          </ButtonLink>
-        </HeroBand>
+          </Link>
+        </WarpShaderHero>
 
         <FeaturedProjects
           projects={featured}
