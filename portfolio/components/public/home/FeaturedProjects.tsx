@@ -31,7 +31,7 @@ export type FeaturedProject = {
   client?: string;
   role?: string;
   tools?: string[];
-  media: Array<{ url: string; alt: string; order: number }>;
+  media: Array<{ url: string; type: "image" | "video"; alt: string; order: number }>;
   externalLinks?: Array<{ label: string; url: string }>;
 };
 

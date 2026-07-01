@@ -18,17 +18,18 @@ import {
 } from "@/components/public/home/FeaturedProjects";
 import { PROJECT_FILTER_CATEGORIES } from "@/lib/project-categories";
 import { getTranslation } from "@/lib/i18n/server";
-import type { Locale } from "@/lib/i18n/settings";
+import { isSupportedLocale, defaultLocale } from "@/lib/i18n/settings";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
 };
 
 export default async function ProjectsPage({ params }: Props) {
   const { locale } = await params;
-  const { t } = await getTranslation(locale);
+  const resolvedLocale = isSupportedLocale(locale) ? locale : defaultLocale;
+  const { t } = await getTranslation(resolvedLocale);
 
   await dbConnect();
 
@@ -70,7 +71,7 @@ export default async function ProjectsPage({ params }: Props) {
 
   return (
     <>
-      <SiteHeader locale={locale} t={t} />
+      <SiteHeader locale={resolvedLocale} t={t} />
 
       <BackgroundBlobs />
 
@@ -105,7 +106,7 @@ export default async function ProjectsPage({ params }: Props) {
         }}
         socialLinks={settings.socialLinks ?? {}}
         footerText={settings.footerText}
-        locale={locale}
+        locale={resolvedLocale}
         t={t}
       />
     </>

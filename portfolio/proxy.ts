@@ -43,8 +43,7 @@ export default async function proxy(request: NextRequest) {
 
   // ── Admin routes: delegate to NextAuth ───────────────────────────────────
   if (pathname.startsWith("/admin")) {
-    // nextAuthMiddleware expects a NextRequest; cast is safe here.
-    return (nextAuthMiddleware as (req: NextRequest) => Response | Promise<Response>)(request);
+    return (nextAuthMiddleware as any)(request);
   }
 
   // ── Skip static assets and Next.js internals ────────────────────────────

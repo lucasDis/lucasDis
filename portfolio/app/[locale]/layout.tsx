@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../globals.css";
 import { getTranslation } from "@/lib/i18n/server";
-import { type Locale, locales } from "@/lib/i18n/settings";
+import { locales, isSupportedLocale, defaultLocale } from "@/lib/i18n/settings";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -20,13 +20,14 @@ export function generateStaticParams() {
 }
 
 type Props = {
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
   children: React.ReactNode;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const { t } = await getTranslation(locale);
+  const resolvedLocale = isSupportedLocale(locale) ? locale : defaultLocale;
+  const { t } = await getTranslation(resolvedLocale);
 
   return {
     title: {
@@ -42,10 +43,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
+  const resolvedLocale = isSupportedLocale(locale) ? locale : defaultLocale;
 
   return (
-    <html lang={locale} className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-canvas text-ink font-body">
+    <html lang={resolvedLocale} className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-canvas text-ink font-body" suppressHydrationWarning>
         {children}
       </body>
     </html>

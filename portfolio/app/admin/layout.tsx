@@ -36,8 +36,8 @@ export default async function AdminLayout({
   const userName = session?.user?.name ?? "Admin";
 
   return (
-    <html lang="es" className="h-full antialiased">
-      <body className="min-h-full bg-canvas text-ink font-body">
+    <html lang="es" className="h-full antialiased" suppressHydrationWarning>
+      <body className="min-h-full bg-canvas text-ink font-body" suppressHydrationWarning>
         <div className="flex min-h-screen bg-canvas">
       <aside className="hidden w-64 shrink-0 border-r border-hairline bg-surface-soft p-6 md:flex md:flex-col">
         <div className="mb-8">

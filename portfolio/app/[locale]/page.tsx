@@ -39,17 +39,18 @@ import {
 import { Contact } from "@/components/public/home/Contact";
 import { ButtonLink } from "@/components/ui/Button";
 import { getTranslation } from "@/lib/i18n/server";
-import type { Locale } from "@/lib/i18n/settings";
+import { isSupportedLocale, defaultLocale } from "@/lib/i18n/settings";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
-  params: Promise<{ locale: Locale }>;
+  params: Promise<{ locale: string }>;
 };
 
 export default async function Home({ params }: Props) {
   const { locale } = await params;
-  const { t } = await getTranslation(locale);
+  const resolvedLocale = isSupportedLocale(locale) ? locale : defaultLocale;
+  const { t } = await getTranslation(resolvedLocale);
 
   await dbConnect();
 
@@ -106,7 +107,7 @@ export default async function Home({ params }: Props) {
 
   return (
     <>
-      <SiteHeader locale={locale} t={t} />
+      <SiteHeader locale={resolvedLocale} t={t} />
 
       <BackgroundBlobs />
 
@@ -116,10 +117,10 @@ export default async function Home({ params }: Props) {
           title={t("hero.title")}
           subtitle={t("hero.subtitle")}
         >
-          <ButtonLink href={`/${locale}/#proyectos`} variant="primary" size="default">
+          <ButtonLink href={`/${resolvedLocale}/#proyectos`} variant="primary" size="default">
             {t("hero.cta_projects")}
           </ButtonLink>
-          <ButtonLink href={`/${locale}/#contacto`} variant="secondary" size="default">
+          <ButtonLink href={`/${resolvedLocale}/#contacto`} variant="secondary" size="default">
             {t("hero.cta_contact")}
           </ButtonLink>
         </HeroBand>
@@ -127,7 +128,7 @@ export default async function Home({ params }: Props) {
         <FeaturedProjects
           projects={featured}
           showViewAll={true}
-          viewAllHref={`/${locale}/proyectos`}
+          viewAllHref={`/${resolvedLocale}/proyectos`}
           labels={{
             eyebrow: t("projects.eyebrow"),
             title: t("projects.title"),
@@ -160,7 +161,7 @@ export default async function Home({ params }: Props) {
 
         <Skills skills={skills} t={t} />
 
-        <Resume experiences={experiences} education={education} locale={locale} t={t} />
+        <Resume experiences={experiences} education={education} locale={resolvedLocale} t={t} />
 
         <Contact
           profile={{
@@ -187,7 +188,7 @@ export default async function Home({ params }: Props) {
         }}
         socialLinks={settings.socialLinks ?? {}}
         footerText={settings.footerText}
-        locale={locale}
+        locale={resolvedLocale}
         t={t}
       />
     </>
