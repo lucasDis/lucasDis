@@ -36,7 +36,9 @@ export default async function AdminLayout({
   const userName = session?.user?.name ?? "Admin";
 
   return (
-    <div className="flex min-h-screen bg-canvas">
+    <html lang="es" className="h-full antialiased">
+      <body className="min-h-full bg-canvas text-ink font-body">
+        <div className="flex min-h-screen bg-canvas">
       <aside className="hidden w-64 shrink-0 border-r border-hairline bg-surface-soft p-6 md:flex md:flex-col">
         <div className="mb-8">
           <p className="text-caption-uppercase text-muted">Admin</p>
@@ -80,6 +82,8 @@ export default async function AdminLayout({
         </header>
         <main className="flex-1 p-8">{children}</main>
       </div>
-    </div>
+        </div>
+      </body>
+    </html>
   );
 }

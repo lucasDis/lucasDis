@@ -1,50 +1,34 @@
 /**
  * Skills — public home section. Grouped by `group` (web / design / other),
- * each item shown with a horizontal bar (uniform per-group proficiency for
- * now; could later become per-skill `level` in the model).
+ * each item shown with a horizontal bar.
  *
- * Server component — data flows down from page.tsx (Experience / Education
- * / Skill models fetched in parallel with the rest of the home data).
+ * Server component — data flows down from [locale]/page.tsx.
+ * Group labels and descriptions come from i18n translations.
  */
 
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import type { TFunction } from "i18next";
 
 export type SkillItem = {
   _id: string;
   name: string;
   group: "web" | "design" | "other";
   order: number;
+  yearsOfExperience?: number;
 };
 
 interface SkillsProps {
   skills: SkillItem[];
+  t: TFunction;
 }
 
-const GROUP_META: Record<
-  string,
-  { label: string; color: string; description: string; percent: number }
-> = {
-  web: {
-    label: "Web",
-    color: "var(--color-brand-pink)",
-    description: "Stack frontend, CMS y maquetación.",
-    percent: 88,
-  },
-  design: {
-    label: "Diseño",
-    color: "var(--color-brand-teal)",
-    description: "Herramientas gráficas, motion y 3D.",
-    percent: 92,
-  },
-  other: {
-    label: "Otros",
-    color: "var(--color-brand-lavender)",
-    description: "Metodologías y competencias transversales.",
-    percent: 80,
-  },
+const GROUP_ACCENT: Record<string, string> = {
+  web: "var(--color-brand-pink)",
+  design: "var(--color-brand-teal)",
+  other: "var(--color-brand-lavender)",
 };
 
-export function Skills({ skills }: SkillsProps) {
+export function Skills({ skills, t }: SkillsProps) {
   const grouped = skills.reduce<Record<string, SkillItem[]>>((acc, s) => {
     if (!acc[s.group]) acc[s.group] = [];
     acc[s.group].push(s);
@@ -55,57 +39,62 @@ export function Skills({ skills }: SkillsProps) {
     arr.sort((a, b) => a.order - b.order)
   );
 
+  const groupKeys = ["web", "design", "other"] as const;
+
   return (
     <section
       id="habilidades"
-      aria-label="Habilidades"
+      aria-label={t("skills.title")}
       className="bg-transparent text-ink"
     >
       <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
         <SectionHeader
-          eyebrow="Skills"
-          title="Habilidades"
-          subtitle="Herramientas y metodologías que uso en el día a día."
+          eyebrow={t("skills.eyebrow")}
+          title={t("skills.title")}
+          subtitle={t("skills.subtitle")}
           align="center"
         />
 
         <div className="mt-16 grid grid-cols-1 gap-12 md:grid-cols-3">
-          {Object.entries(GROUP_META).map(([groupKey, meta]) => {
+          {groupKeys.map((groupKey) => {
+            const label = t(`skills.groups.${groupKey}.label`);
+            const description = t(`skills.groups.${groupKey}.description`);
             const items = grouped[groupKey] ?? [];
-            return (
-              <div key={groupKey} className="space-y-5">
-                <div className="flex items-baseline justify-between border-b border-hairline pb-3">
-                  <h3 className="text-title-md text-ink">{meta.label}</h3>
-                  <span className="text-caption-uppercase text-muted">
-                    {items.length}
-                  </span>
-                </div>
-                <p className="text-body-sm text-muted">{meta.description}</p>
 
-                <ul className="space-y-3 pt-2">
-                  {items.map((skill) => (
-                    <li
-                      key={skill._id}
-                      className="flex items-center justify-between gap-3"
-                    >
-                      <span className="text-body-sm text-ink">{skill.name}</span>
-                      <span
-                        aria-hidden="true"
-                        className="h-1 w-32 flex-shrink-0 overflow-hidden rounded-pill bg-surface-strong"
-                      >
-                        <span
-                          className="block h-full rounded-pill"
-                          style={{
-                            width: `${meta.percent}%`,
-                            background: meta.color,
-                          }}
-                        />
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+          return (
+            <div key={groupKey} className="space-y-5">
+              <div className="flex items-baseline justify-between border-b border-hairline pb-3">
+                <h3 className="text-title-md text-ink">{label}</h3>
+                <span className="text-caption-uppercase text-muted">
+                  {items.length}
+                </span>
               </div>
-            );
+              <p className="text-body-sm text-muted">{description}</p>
+
+              <ul className="space-y-2 pt-2">
+                {items.map((skill) => (
+                  <li
+                    key={skill._id}
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <span className="text-body-sm text-ink">{skill.name}</span>
+                    {skill.yearsOfExperience != null && (
+                      <span
+                        className="shrink-0 rounded-pill px-2 py-0.5 text-caption font-medium"
+                        style={{
+                          background: `color-mix(in srgb, ${GROUP_ACCENT[groupKey]} 15%, transparent)`,
+                          color: GROUP_ACCENT[groupKey],
+                        }}
+                      >
+                        {skill.yearsOfExperience}{" "}
+                        {skill.yearsOfExperience === 1 ? "año" : "años"}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
           })}
         </div>
       </div>

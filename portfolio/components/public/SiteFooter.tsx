@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import type { Locale } from "@/lib/i18n/settings";
+import type { TFunction } from "i18next";
 
 /**
  * SiteFooter — cream footer for public pages.
@@ -24,17 +26,9 @@ interface SiteFooterProps {
     instagram?: string;
   };
   footerText: string;
+  locale: Locale;
+  t: TFunction;
 }
-
-// Anchors into the single-page home — kept in sync with SiteHeader's
-// NAV_LINKS and the section ids in components/public/home/*.
-const FOOTER_LINKS = [
-  { href: "/#proyectos", label: "Proyectos" },
-  { href: "/#sobre-mi", label: "Sobre mí" },
-  { href: "/#habilidades", label: "Habilidades" },
-  { href: "/#cv", label: "CV" },
-  { href: "/#contacto", label: "Contacto" },
-];
 
 const SOCIAL_KEYS = [
   { key: "linkedin", label: "LinkedIn" },
@@ -47,10 +41,21 @@ export function SiteFooter({
   profile,
   socialLinks,
   footerText,
+  locale,
+  t,
 }: SiteFooterProps) {
-  // First sentence of the professional profile as the "About" excerpt.
+  const base = `/${locale}`;
   const aboutExcerpt = profile.professionalProfile.split(". ")[0] + ".";
   const year = new Date().getFullYear();
+
+  // Anchors into the single-page home — kept in sync with SiteHeader's nav links.
+  const FOOTER_LINKS = [
+    { href: `${base}/#proyectos`, label: t("nav.projects") },
+    { href: `${base}/#sobre-mi`, label: t("nav.about") },
+    { href: `${base}/#habilidades`, label: t("nav.skills") },
+    { href: `${base}/#cv`, label: t("nav.cv") },
+    { href: `${base}/#contacto`, label: t("nav.contact") },
+  ];
 
   return (
     <footer className="bg-surface-soft border-t border-hairline">
@@ -64,7 +69,7 @@ export function SiteFooter({
 
           {/* Column 2: Links */}
           <div>
-            <p className="text-caption-uppercase text-muted">Links</p>
+            <p className="text-caption-uppercase text-muted">{t("footer.links")}</p>
             <ul className="mt-4 space-y-2">
               {FOOTER_LINKS.map((link) => (
                 <li key={link.href}>
@@ -81,7 +86,7 @@ export function SiteFooter({
 
           {/* Column 3: Contact */}
           <div>
-            <p className="text-caption-uppercase text-muted">Contacto</p>
+            <p className="text-caption-uppercase text-muted">{t("footer.contact")}</p>
             <ul className="mt-4 space-y-2 text-body-sm text-body">
               <li>
                 <a
@@ -105,7 +110,7 @@ export function SiteFooter({
 
           {/* Column 4: Social */}
           <div>
-            <p className="text-caption-uppercase text-muted">Redes</p>
+            <p className="text-caption-uppercase text-muted">{t("footer.social")}</p>
             <ul className="mt-4 space-y-2 text-body-sm text-body">
               {SOCIAL_KEYS.map(({ key, label }) => {
                 const url = socialLinks[key];
@@ -134,7 +139,7 @@ export function SiteFooter({
           )}
         >
           <p>
-            © {year} {profile.fullName}. Todos los derechos reservados.
+            © {year} {profile.fullName}. {t("footer.rights")}
           </p>
           {footerText && <p>{footerText}</p>}
         </div>

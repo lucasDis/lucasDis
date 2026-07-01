@@ -67,6 +67,7 @@ export const projectSchema = z.object({
   externalLinks: z.array(externalLinkSchema).default([]),
   featured: z.boolean().default(false),
   published: z.boolean().default(false),
+  isPersonalProject: z.boolean().default(false),
 });
 
 // Form input type — strings before Zod coerces them. Drives `useForm`.

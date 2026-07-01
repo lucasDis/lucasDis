@@ -49,6 +49,7 @@ function toDefaultValues(
     externalLinks: initial?.externalLinks ?? [],
     featured: initial?.featured ?? false,
     published: initial?.published ?? false,
+    isPersonalProject: initial?.isPersonalProject ?? false,
   };
 }
 
@@ -87,6 +88,18 @@ export function ProjectForm({
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const title = watch("title");
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const isPersonalProject = watch("isPersonalProject");
+
+  // Auto-fill client when marking as personal project
+  function handlePersonalProjectChange(checked: boolean) {
+    setValue("isPersonalProject", checked, { shouldDirty: true });
+    if (checked) {
+      setValue("client", "Proyecto personal", { shouldDirty: true });
+    } else {
+      setValue("client", "", { shouldDirty: true });
+    }
+  }
 
   function handleGenerateSlug() {
     setValue("slug", slugify(title || ""), {
@@ -210,9 +223,38 @@ export function ProjectForm({
       {/* ─── Details ──────────────────────────────────────────── */}
       <fieldset className="flex flex-col gap-5">
         <legend className="text-caption-uppercase text-muted">Detalles</legend>
+
+        {/* Personal project toggle */}
+        <Controller
+          control={control}
+          name="isPersonalProject"
+          render={({ field }) => (
+            <label className="flex cursor-pointer items-center gap-2 text-body-md">
+              <input
+                type="checkbox"
+                checked={field.value}
+                onChange={(e) => handlePersonalProjectChange(e.target.checked)}
+                onBlur={field.onBlur}
+                ref={field.ref}
+                className="h-4 w-4 cursor-pointer"
+              />
+              Proyecto personal / freelance propio
+            </label>
+          )}
+        />
+
         <div className="grid gap-5 md:grid-cols-2">
-          <Field label="Cliente" error={errors.client?.message}>
-            <input {...register("client")} className={inputClass} />
+          <Field
+            label="Cliente"
+            error={errors.client?.message}
+            hint={isPersonalProject ? "Auto-completado" : undefined}
+          >
+            <input
+              {...register("client")}
+              className={inputClass}
+              readOnly={isPersonalProject}
+              placeholder={isPersonalProject ? "Proyecto personal" : "Nombre del cliente"}
+            />
           </Field>
           <Field label="Rol" error={errors.role?.message}>
             <input {...register("role")} className={inputClass} placeholder="Diseñador UX/UI" />

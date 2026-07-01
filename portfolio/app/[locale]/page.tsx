@@ -1,25 +1,12 @@
 /**
- * Home (/) — public landing page (Fase 5).
+ * Home ([locale]/) — public landing page.
  *
  * Server component. Fetches Profile + 3 featured projects + SiteSettings
  * + Skills + Experience + Education in parallel from MongoDB and composes
  * the home sections framed by the public SiteHeader / SiteFooter.
  *
- * Restructured per Exo Portfolio reference: full CV + portfolio sections
- * rather than just a project showcase.
- *
- * Sections (in display order):
- *   1. Hero band         — eyebrow + h1 + lead + 2 CTAs
- *   2. Featured Projects — 3-up filtered grid + modal
- *   3. About Preview     — full bio + personal info card
- *   4. Services          — 3 feature cards (UX/UI, Frontend, 3D)
- *   5. Skills            — proficiency bars (web / design / other)
- *   6. Resume            — experience + education timeline
- *   7. Contact           — email / phone / location + socials
- *
- * `dynamic = "force-dynamic"` keeps the featured list fresh; the data is
- * also cheap to fetch (singleton + 3 + 25 + 4 + 2 docs), so static caching
- * wouldn't buy much.
+ * The `locale` param comes from the [locale] dynamic segment and is used
+ * to load the correct i18n translations via `getTranslation`.
  */
 
 import { dbConnect } from "@/lib/db";
@@ -37,6 +24,7 @@ import {
   FeaturedProjects,
   type FeaturedProject,
 } from "@/components/public/home/FeaturedProjects";
+import { PROJECT_FILTER_CATEGORIES } from "@/lib/project-categories";
 import { AboutPreview } from "@/components/public/home/AboutPreview";
 import { Services } from "@/components/public/home/Services";
 import {
@@ -50,10 +38,19 @@ import {
 } from "@/components/public/home/Resume";
 import { Contact } from "@/components/public/home/Contact";
 import { ButtonLink } from "@/components/ui/Button";
+import { getTranslation } from "@/lib/i18n/server";
+import type { Locale } from "@/lib/i18n/settings";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+type Props = {
+  params: Promise<{ locale: Locale }>;
+};
+
+export default async function Home({ params }: Props) {
+  const { locale } = await params;
+  const { t } = await getTranslation(locale);
+
   await dbConnect();
 
   const [
@@ -81,8 +78,6 @@ export default async function Home() {
     );
   }
 
-  // Strip Mongoose metadata (ObjectIds, Date instances) to plain
-  // JSON-safe objects so they pass cleanly to the (server) children.
   const profile = JSON.parse(JSON.stringify(profileRaw)) as {
     fullName: string;
     location: string;
@@ -111,25 +106,45 @@ export default async function Home() {
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader locale={locale} t={t} />
 
       <BackgroundBlobs />
 
       <main className="flex-1">
         <HeroBand
-          eyebrow="Portfolio 2026"
-          title="Diseño UX/UI con propósito y código limpio"
-          subtitle="Soy Lucas Ruiz Díaz, diseñador gráfico y desarrollador frontend en Tucumán, Argentina. Diseño plataformas web accesibles, sistemas de identidad y experiencias digitales con foco en detalle y rendimiento."
+          eyebrow={t("hero.eyebrow")}
+          title={t("hero.title")}
+          subtitle={t("hero.subtitle")}
         >
-          <ButtonLink href="/#proyectos" variant="primary" size="default">
-            Ver proyectos
+          <ButtonLink href={`/${locale}/#proyectos`} variant="primary" size="default">
+            {t("hero.cta_projects")}
           </ButtonLink>
-          <ButtonLink href="/#contacto" variant="secondary" size="default">
-            Contactar
+          <ButtonLink href={`/${locale}/#contacto`} variant="secondary" size="default">
+            {t("hero.cta_contact")}
           </ButtonLink>
         </HeroBand>
 
-        <FeaturedProjects projects={featured} />
+        <FeaturedProjects
+          projects={featured}
+          showViewAll={true}
+          viewAllHref={`/${locale}/proyectos`}
+          labels={{
+            eyebrow: t("projects.eyebrow"),
+            title: t("projects.title"),
+            subtitle: t("projects.subtitle"),
+            empty: t("projects.empty"),
+            closeModal: t("projects.close_modal"),
+            filterLabel: t("projects.filter_label"),
+            client: t("projects.client"),
+            role: t("projects.role"),
+            tools: t("projects.tools"),
+            categories: Object.fromEntries(
+              PROJECT_FILTER_CATEGORIES.map((cat) => [cat, t(`projects.categories.${cat}`)])
+            ),
+            openDetailsTemplate: t("projects.open_details"),
+            viewAll: t("projects.view_all"),
+          }}
+        />
 
         <AboutPreview
           profile={{
@@ -138,13 +153,14 @@ export default async function Home() {
             birthLocation: profile.birthLocation,
             professionalProfile: profile.professionalProfile,
           }}
+          t={t}
         />
 
-        <Services />
+        <Services t={t} />
 
-        <Skills skills={skills} />
+        <Skills skills={skills} t={t} />
 
-        <Resume experiences={experiences} education={education} />
+        <Resume experiences={experiences} education={education} locale={locale} t={t} />
 
         <Contact
           profile={{
@@ -157,6 +173,7 @@ export default async function Home() {
             behance: profile.behance,
             instagram: profile.instagram,
           }}
+          t={t}
         />
       </main>
 
@@ -170,6 +187,8 @@ export default async function Home() {
         }}
         socialLinks={settings.socialLinks ?? {}}
         footerText={settings.footerText}
+        locale={locale}
+        t={t}
       />
     </>
   );

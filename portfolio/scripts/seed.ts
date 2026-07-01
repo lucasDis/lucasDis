@@ -93,35 +93,35 @@ const EDUCATION = [
   },
 ];
 
-const SKILLS: Array<{ name: string; group: "web" | "design" | "other"; order: number }> = [
+const SKILLS: Array<{ name: string; group: "web" | "design" | "other"; order: number; yearsOfExperience: number }> = [
   // Web
-  { name: "HTML5", group: "web", order: 0 },
-  { name: "CSS3", group: "web", order: 1 },
-  { name: "JavaScript", group: "web", order: 2 },
-  { name: "React.js", group: "web", order: 3 },
-  { name: "Tailwind CSS", group: "web", order: 4 },
-  { name: "Bootstrap", group: "web", order: 5 },
-  { name: "WordPress (Elementor, Divi, Breakdance)", group: "web", order: 6 },
+  { name: "HTML5", group: "web", order: 0, yearsOfExperience: 4 },
+  { name: "CSS3", group: "web", order: 1, yearsOfExperience: 4 },
+  { name: "JavaScript", group: "web", order: 2, yearsOfExperience: 3 },
+  { name: "React.js", group: "web", order: 3, yearsOfExperience: 2 },
+  { name: "Tailwind CSS", group: "web", order: 4, yearsOfExperience: 2 },
+  { name: "Bootstrap", group: "web", order: 5, yearsOfExperience: 3 },
+  { name: "WordPress (Elementor, Divi, Breakdance)", group: "web", order: 6, yearsOfExperience: 3 },
 
   // Design
-  { name: "Adobe Photoshop", group: "design", order: 0 },
-  { name: "Adobe Illustrator", group: "design", order: 1 },
-  { name: "Adobe InDesign", group: "design", order: 2 },
-  { name: "Premiere Pro", group: "design", order: 3 },
-  { name: "After Effects", group: "design", order: 4 },
-  { name: "CapCut", group: "design", order: 5 },
-  { name: "Figma", group: "design", order: 6 },
-  { name: "CorelDRAW", group: "design", order: 7 },
-  { name: "Blender 5.0", group: "design", order: 8 },
-  { name: "SketchUp", group: "design", order: 9 },
-  { name: "Canva", group: "design", order: 10 },
+  { name: "Adobe Photoshop", group: "design", order: 0, yearsOfExperience: 7 },
+  { name: "Adobe Illustrator", group: "design", order: 1, yearsOfExperience: 7 },
+  { name: "Adobe InDesign", group: "design", order: 2, yearsOfExperience: 5 },
+  { name: "Premiere Pro", group: "design", order: 3, yearsOfExperience: 4 },
+  { name: "After Effects", group: "design", order: 4, yearsOfExperience: 3 },
+  { name: "CapCut", group: "design", order: 5, yearsOfExperience: 2 },
+  { name: "Figma", group: "design", order: 6, yearsOfExperience: 3 },
+  { name: "CorelDRAW", group: "design", order: 7, yearsOfExperience: 6 },
+  { name: "Blender 5.0", group: "design", order: 8, yearsOfExperience: 2 },
+  { name: "SketchUp", group: "design", order: 9, yearsOfExperience: 2 },
+  { name: "Canva", group: "design", order: 10, yearsOfExperience: 4 },
 
   // Other
-  { name: "Diseño Responsive y Mobile-First", group: "other", order: 0 },
-  { name: "UX/UI", group: "other", order: 1 },
-  { name: "SEO On-Page", group: "other", order: 2 },
-  { name: "Accesibilidad Web (WCAG)", group: "other", order: 3 },
-  { name: "Comunicación Visual Institucional", group: "other", order: 4 },
+  { name: "Diseño Responsive y Mobile-First", group: "other", order: 0, yearsOfExperience: 4 },
+  { name: "UX/UI", group: "other", order: 1, yearsOfExperience: 3 },
+  { name: "SEO On-Page", group: "other", order: 2, yearsOfExperience: 3 },
+  { name: "Accesibilidad Web (WCAG)", group: "other", order: 3, yearsOfExperience: 3 },
+  { name: "Comunicación Visual Institucional", group: "other", order: 4, yearsOfExperience: 4 },
 ];
 
 /**

@@ -1,15 +1,13 @@
 /**
  * Contact — public home section. Two-column layout: contact form (left)
- * + email / phone / location cards and social links (right), pulled from
- * the Profile singleton.
+ * + email / phone / location cards and social links (right).
  *
- * Server component — data flows down from page.tsx. The form itself is a
- * client component (`ContactForm`) that posts to the `submitContactMessage`
- * server action.
+ * Server component — data flows down from [locale]/page.tsx.
  */
 
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ContactForm } from "./ContactForm";
+import type { TFunction } from "i18next";
 
 interface ContactProps {
   profile: {
@@ -22,6 +20,7 @@ interface ContactProps {
     behance?: string;
     instagram?: string;
   };
+  t: TFunction;
 }
 
 function normalizeUrl(url: string | undefined): string | null {
@@ -32,7 +31,7 @@ function normalizeUrl(url: string | undefined): string | null {
   return `https://${trimmed}`;
 }
 
-export function Contact({ profile }: ContactProps) {
+export function Contact({ profile, t }: ContactProps) {
   const linkedinUrl = normalizeUrl(profile.linkedin);
   const githubUrl = normalizeUrl(profile.github);
   const behanceUrl = normalizeUrl(profile.behance);
@@ -44,14 +43,14 @@ export function Contact({ profile }: ContactProps) {
   return (
     <section
       id="contacto"
-      aria-label="Contacto"
+      aria-label={t("contact.eyebrow")}
       className="bg-transparent text-ink"
     >
       <div className="mx-auto max-w-5xl px-6 py-24 lg:py-32">
         <SectionHeader
-          eyebrow="Hire me"
-          title="¿Trabajamos juntos?"
-          subtitle="Estoy disponible para proyectos freelance, consultorías y oportunidades full-time."
+          eyebrow={t("contact.eyebrow")}
+          title={t("contact.title")}
+          subtitle={t("contact.subtitle")}
           align="center"
         />
 
@@ -81,7 +80,7 @@ export function Contact({ profile }: ContactProps) {
                 </span>
                 <span className="flex flex-col">
                   <span className="text-caption-uppercase text-muted">
-                    Email
+                    {t("contact.email")}
                   </span>
                   <span className="break-all text-body-md font-medium text-ink group-hover:text-brand-pink">
                     {profile.email}
@@ -111,7 +110,7 @@ export function Contact({ profile }: ContactProps) {
                   </span>
                   <span className="flex flex-col">
                     <span className="text-caption-uppercase text-muted">
-                      Teléfono
+                      {t("contact.phone")}
                     </span>
                     <span className="text-body-md font-medium text-ink group-hover:text-brand-pink">
                       {profile.phone}
@@ -147,7 +146,7 @@ export function Contact({ profile }: ContactProps) {
                 </span>
                 <span className="flex flex-col">
                   <span className="text-caption-uppercase text-muted">
-                    Ubicación
+                    {t("contact.location_label")}
                   </span>
                   <span className="text-body-md font-medium text-ink">
                     {profile.location}

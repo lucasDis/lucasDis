@@ -19,6 +19,7 @@ const SkillSchema = new Schema(
       index: true,
     },
     order: { type: Number, default: 0 },
+    yearsOfExperience: { type: Number, min: 0 },
   },
   { timestamps: true }
 );

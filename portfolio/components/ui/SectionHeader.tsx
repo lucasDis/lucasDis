@@ -35,12 +35,14 @@ export function SectionHeader({
   className,
 }: SectionHeaderProps) {
   const alignClass =
-    align === "center" ? "text-center mx-auto" : "text-left";
+    align === "center"
+      ? "text-center mx-auto flex flex-col items-center"
+      : "text-left";
 
   const Heading = as;
 
   return (
-    <header className={clsx("max-w-3xl", alignClass, className)}>
+    <header className={clsx("max-w-3xl w-full", alignClass, className)}>
       {eyebrow && (
         <p className="text-caption-uppercase text-muted">{eyebrow}</p>
       )}
@@ -48,7 +50,7 @@ export function SectionHeader({
         {title}
       </Heading>
       {subtitle && (
-        <p className="mt-4 text-title-md text-body max-w-2xl">
+        <p className={clsx("mt-4 text-title-md text-body max-w-2xl", align === "center" && "mx-auto")}>
           {subtitle}
         </p>
       )}

@@ -53,6 +53,7 @@ const ProjectSchema = new Schema(
     externalLinks: { type: [ExternalLinkSchema], default: [] },
     featured: { type: Boolean, default: false, index: true },
     published: { type: Boolean, default: false, index: true },
+    isPersonalProject: { type: Boolean, default: false },
     order: { type: Number, default: 0 },
   },
   { timestamps: true }

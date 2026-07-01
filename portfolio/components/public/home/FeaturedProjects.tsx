@@ -4,18 +4,12 @@
  * Featured Projects — client component with category filter + modal detail.
  *
  * Layout (home section):
- *   - SectionHeader + filter chips (Todos / Web / UX-UI / Branding / etc.)
+ *   - SectionHeader + filter chips (All / Web / UX-UI / Branding / etc.)
  *   - 3-column grid of project preview cards (2 on tablet, 1 on mobile)
  *   - Click a card → modal opens with full project detail + scroll effect
  *
- * Modal:
- *   - 80vw × 70vh, backdrop blur, rounded, drop shadow.
- *   - Sticky image at the top of the modal's internal scroll (45vh tall).
- *   - Cream content card (max-w-60ch) scrolls up over the image with
- *     a dark gradient fade for readability — mini version of the Pug CSS
- *     scroll technique adapted to the modal context.
- *   - Close: X button, Escape key, or backdrop click.
- *   - Body scroll locked while open.
+ * i18n: strings are resolved server-side and passed as `labels` prop.
+ * This keeps the Client Component free from i18next dependency.
  *
  * Accessibility: focus-visible rings, aria-modal/role=dialog, aria-selected
  * on filter chips, aria-label on close button.
@@ -23,6 +17,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { ButtonLink } from "@/components/ui/Button";
+import { PROJECT_FILTER_CATEGORIES } from "@/lib/project-categories";
 
 export type FeaturedProject = {
   _id: string;
@@ -39,43 +35,45 @@ export type FeaturedProject = {
   externalLinks?: Array<{ label: string; url: string }>;
 };
 
-interface FeaturedProjectsProps {
-  projects: FeaturedProject[];
-}
-
-const CATEGORY_LABELS: Record<string, string> = {
-  all: "Todos",
-  web: "Web",
-  "graphic-design": "Diseño Gráfico",
-  "ux-ui": "UX/UI",
-  "3d": "3D",
-  branding: "Branding",
+export type FeaturedProjectsLabels = {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  empty: string;
+  closeModal: string;
+  filterLabel: string;
+  client: string;
+  role: string;
+  tools: string;
+  categories: Record<string, string>;
+  /** i18next template string, e.g. "Ver detalles de {{title}}" */
+  openDetailsTemplate: string;
+  viewAll?: string;
 };
 
-// Order: "Todos" first, then the categories we actually have.
-const FILTER_CATEGORIES = [
-  "all",
-  "web",
-  "ux-ui",
-  "branding",
-  "graphic-design",
-  "3d",
-] as const;
+interface FeaturedProjectsProps {
+  projects: FeaturedProject[];
+  /** i18n labels resolved server-side — no functions allowed in Client Components */
+  labels: FeaturedProjectsLabels;
+  showViewAll?: boolean;
+  viewAllHref?: string;
+}
 
-// Thin accent bar on preview cards — cycles through the three primary
-// brand colors so the section ties back to the palette.
+const FILTER_CATEGORIES = PROJECT_FILTER_CATEGORIES;
+
 const ACCENTS = ["brand-pink", "brand-teal", "brand-lavender"] as const;
 
-export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
+export function FeaturedProjects({
+  projects,
+  labels,
+  showViewAll = false,
+  viewAllHref,
+}: FeaturedProjectsProps) {
   const [filter, setFilter] = useState<string>("all");
-  const [activeProject, setActiveProject] = useState<FeaturedProject | null>(
-    null
-  );
+  const [activeProject, setActiveProject] = useState<FeaturedProject | null>(null);
 
   const filteredProjects =
-    filter === "all"
-      ? projects
-      : projects.filter((p) => p.category === filter);
+    filter === "all" ? projects : projects.filter((p) => p.category === filter);
 
   const openModal = useCallback((project: FeaturedProject) => {
     setActiveProject(project);
@@ -108,21 +106,21 @@ export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
   return (
     <section
       id="proyectos"
-      aria-label="Proyectos destacados"
+      aria-label={labels.title}
       className="bg-transparent text-ink"
     >
       <div className="mx-auto max-w-7xl px-6 pt-24 pb-12 lg:pt-32 lg:pb-16">
         <SectionHeader
-          eyebrow="Portfolio"
-          title="Proyectos destacados"
-          subtitle="Una selección de trabajos recientes en web, branding, UX/UI y 3D."
+          eyebrow={labels.eyebrow}
+          title={labels.title}
+          subtitle={labels.subtitle}
           align="left"
         />
 
         <div
           className="filter-chips mt-10"
           role="tablist"
-          aria-label="Filtrar proyectos por categoría"
+          aria-label={labels.filterLabel}
         >
           {FILTER_CATEGORIES.map((cat) => (
             <button
@@ -134,7 +132,7 @@ export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
               onClick={() => setFilter(cat)}
               className="filter-chip"
             >
-              {CATEGORY_LABELS[cat]}
+              {labels.categories[cat] ?? cat}
             </button>
           ))}
         </div>
@@ -143,24 +141,39 @@ export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
       <div className="mx-auto max-w-7xl px-6 pb-24 lg:pb-32">
         {filteredProjects.length === 0 ? (
           <p className="py-16 text-center text-body-md text-muted">
-            No hay proyectos en esta categoría todavía.
+            {labels.empty}
           </p>
         ) : (
-          <div className="project-grid">
-            {filteredProjects.map((project, idx) => (
-              <ProjectCardPreview
-                key={project._id}
-                project={project}
-                accent={ACCENTS[idx % ACCENTS.length]}
-                onOpen={() => openModal(project)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="project-grid">
+              {filteredProjects.map((project, idx) => (
+                <ProjectCardPreview
+                  key={project._id}
+                  project={project}
+                  accent={ACCENTS[idx % ACCENTS.length]}
+                  onOpen={() => openModal(project)}
+                  openDetailsLabel={labels.openDetailsTemplate.replace("{{title}}", project.title)}
+                  categoryLabel={labels.categories[project.category] ?? project.category}
+                />
+              ))}
+            </div>
+            {showViewAll && viewAllHref && labels.viewAll && (
+              <div className="mt-12 flex justify-center">
+                <ButtonLink href={viewAllHref} variant="secondary">
+                  {labels.viewAll}
+                </ButtonLink>
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {activeProject && (
-        <ProjectModal project={activeProject} onClose={closeModal} />
+        <ProjectModal
+          project={activeProject}
+          onClose={closeModal}
+          labels={labels}
+        />
       )}
     </section>
   );
@@ -170,20 +183,23 @@ function ProjectCardPreview({
   project,
   accent,
   onOpen,
+  openDetailsLabel,
+  categoryLabel,
 }: {
   project: FeaturedProject;
   accent: (typeof ACCENTS)[number];
   onOpen: () => void;
+  openDetailsLabel: string;
+  categoryLabel: string;
 }) {
   const cover = project.media[0];
-  const categoryLabel = CATEGORY_LABELS[project.category] ?? project.category;
 
   return (
     <button
       type="button"
       onClick={onOpen}
       className="project-card-preview group"
-      aria-label={`Ver detalles de ${project.title}`}
+      aria-label={openDetailsLabel}
     >
       <div className="project-card-preview-image-wrap">
         {cover ? (
@@ -221,15 +237,78 @@ function ProjectCardPreview({
   );
 }
 
+function getEmbedUrl(url: string): string | null {
+  if (!url) return null;
+  
+  // YouTube regex
+  const ytMatch = url.match(
+    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i
+  );
+  if (ytMatch && ytMatch[1]) {
+    return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  }
+
+  // Vimeo regex
+  const vimeoMatch = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i);
+  if (vimeoMatch && vimeoMatch[1]) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  }
+
+  return null;
+}
+
+function ProjectMediaItem({ url, type, alt }: { url: string; type: "image" | "video"; alt: string }) {
+  if (type === "video") {
+    const embedUrl = getEmbedUrl(url);
+    if (embedUrl) {
+      return (
+        <div className="relative w-full aspect-video overflow-hidden rounded-lg border border-hairline bg-surface-soft shadow-sm">
+          <iframe
+            src={embedUrl}
+            title={alt}
+            className="absolute inset-0 w-full h-full border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      );
+    }
+    return (
+      <div className="overflow-hidden rounded-lg border border-hairline bg-surface-soft shadow-sm">
+        <video
+          src={url}
+          controls
+          className="w-full h-auto max-h-[60vh] object-contain mx-auto"
+          aria-label={alt}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-hairline bg-surface-soft shadow-sm">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt={alt}
+        className="w-full h-auto object-contain max-h-[80vh] mx-auto"
+        loading="lazy"
+      />
+    </div>
+  );
+}
+
 function ProjectModal({
   project,
   onClose,
+  labels,
 }: {
   project: FeaturedProject;
   onClose: () => void;
+  labels: FeaturedProjectsLabels;
 }) {
-  const cover = project.media[0];
-  const categoryLabel = CATEGORY_LABELS[project.category] ?? project.category;
+  const coverImage = project.media.find((m) => m.type === "image") || project.media[0];
+  const categoryLabel = labels.categories[project.category] ?? project.category;
 
   return (
     <div
@@ -244,7 +323,7 @@ function ProjectModal({
           type="button"
           onClick={onClose}
           className="project-modal-close"
-          aria-label="Cerrar modal"
+          aria-label={labels.closeModal}
         >
           <svg
             width="20"
@@ -264,14 +343,25 @@ function ProjectModal({
 
         <div className="project-modal-scroll">
           <figure className="project-modal-image">
-            {cover && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={cover.url}
-                alt={cover.alt || project.title}
-                loading="eager"
-                decoding="async"
-              />
+            {coverImage && (
+              coverImage.type === "video" ? (
+                <video
+                  src={coverImage.url}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={coverImage.url}
+                  alt={coverImage.alt || project.title}
+                  loading="eager"
+                  decoding="async"
+                />
+              )
             )}
           </figure>
 
@@ -292,22 +382,20 @@ function ProjectModal({
               <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-body-sm">
                 {project.client && (
                   <>
-                    <dt className="text-muted">Cliente</dt>
+                    <dt className="text-muted">{labels.client}</dt>
                     <dd className="text-ink">{project.client}</dd>
                   </>
                 )}
                 {project.role && (
                   <>
-                    <dt className="text-muted">Rol</dt>
+                    <dt className="text-muted">{labels.role}</dt>
                     <dd className="text-ink">{project.role}</dd>
                   </>
                 )}
               </dl>
             )}
 
-            <p className="mt-6 text-body-md text-body">
-              {project.shortDescription}
-            </p>
+            <p className="mt-6 text-body-md text-body">{project.shortDescription}</p>
 
             {project.longDescription && (
               <div className="mt-6 whitespace-pre-line text-body-md text-body">
@@ -318,7 +406,7 @@ function ProjectModal({
             {project.tools && project.tools.length > 0 && (
               <>
                 <h3 className="mt-8 text-caption-uppercase text-muted">
-                  Herramientas
+                  {labels.tools}
                 </h3>
                 <ul className="mt-3 flex flex-wrap gap-2">
                   {project.tools.map((tool) => (
@@ -347,6 +435,25 @@ function ProjectModal({
                     <span aria-hidden="true">→</span>
                   </a>
                 ))}
+              </div>
+            )}
+
+            {/* Project Gallery / Media Items */}
+            {project.media && project.media.length > 0 && (
+              <div className="mt-12 space-y-6 border-t border-hairline pt-10">
+                <h3 className="text-caption-uppercase text-muted">
+                  Galería del proyecto
+                </h3>
+                <div className="flex flex-col gap-6">
+                  {project.media.map((item, idx) => (
+                    <ProjectMediaItem
+                      key={idx}
+                      url={item.url}
+                      type={item.type as "image" | "video"}
+                      alt={item.alt || `${project.title} - ${idx + 1}`}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </article>

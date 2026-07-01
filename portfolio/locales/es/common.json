@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "title": "Lucas Ruiz Díaz — Portfolio",
+    "titleTemplate": "%s · Lucas Ruiz Díaz",
+    "description": "Diseñador UX/UI tucumano con experiencia en 3D, branding y producto. Conocé mis proyectos y cómo trabajar conmigo."
+  },
+  "nav": {
+    "projects": "Proyectos",
+    "about": "Sobre mí",
+    "services": "Servicios",
+    "skills": "Habilidades",
+    "cv": "CV",
+    "contact": "Contacto",
+    "hire": "Contactar"
+  },
+  "hero": {
+    "eyebrow": "Portfolio 2026",
+    "title": "Diseño UX/UI con propósito y código limpio",
+    "subtitle": "Soy Lucas Ruiz Díaz, diseñador gráfico y desarrollador frontend en Tucumán, Argentina. Diseño plataformas web accesibles, sistemas de identidad y experiencias digitales con foco en detalle y rendimiento.",
+    "cta_projects": "Ver proyectos",
+    "cta_contact": "Contactar"
+  },
+  "projects": {
+    "eyebrow": "Portfolio",
+    "title": "Proyectos destacados",
+    "subtitle": "Una selección de trabajos recientes en web, branding, UX/UI y 3D.",
+    "empty": "No hay proyectos en esta categoría todavía.",
+    "open_details": "Ver detalles de {{title}}",
+    "close_modal": "Cerrar modal",
+    "categories": {
+      "all": "Todos",
+      "web": "Web",
+      "graphic-design": "Diseño Gráfico",
+      "ux-ui": "UX/UI",
+      "3d": "3D",
+      "branding": "Branding"
+    },
+    "filter_label": "Filtrar proyectos por categoría",
+    "client": "Cliente",
+    "role": "Rol",
+    "tools": "Herramientas",
+    "view_all": "Ver todos los proyectos",
+    "all_eyebrow": "Portfolio completo",
+    "all_title": "Todos los proyectos",
+    "all_subtitle": "Exploración completa de mis trabajos en diseño web, UX/UI, branding y 3D."
+  },
+  "about": {
+    "eyebrow": "Sobre mí",
+    "title": "Diseño con propósito y código limpio",
+    "personal_info": "Datos personales",
+    "name": "Nombre",
+    "location": "Ubicación",
+    "origin": "Origen",
+    "role_label": "Rol",
+    "role_value": "Diseñador Gráfico & Desarrollador Frontend"
+  },
+  "services": {
+    "eyebrow": "Servicios",
+    "title": "Lo que hago",
+    "subtitle": "Tres áreas de especialidad que se cruzan en cada proyecto.",
+    "items": [
+      {
+        "title": "Diseño UX/UI",
+        "description": "Diseño de interfaces accesibles, research con usuarios y prototipado de alta fidelidad en Figma."
+      },
+      {
+        "title": "Desarrollo Web Frontend",
+        "description": "Sitios responsive, accesibles (WCAG AA) y rápidos con React, Next.js y Tailwind CSS."
+      },
+      {
+        "title": "Modelado y Renderizado 3D",
+        "description": "Renders fotorrealistas en Blender para portfolio inmobiliario, producto y visualizaciones."
+      }
+    ]
+  },
+  "skills": {
+    "eyebrow": "Skills",
+    "title": "Habilidades",
+    "subtitle": "Herramientas y metodologías que uso en el día a día.",
+    "groups": {
+      "web": {
+        "label": "Web",
+        "description": "Stack frontend, CMS y maquetación."
+      },
+      "design": {
+        "label": "Diseño",
+        "description": "Herramientas gráficas, motion y 3D."
+      },
+      "other": {
+        "label": "Otros",
+        "description": "Metodologías y competencias transversales."
+      }
+    }
+  },
+  "resume": {
+    "eyebrow": "CV",
+    "title": "Trayectoria",
+    "subtitle": "Experiencia profesional y formación académica.",
+    "experience": "Experiencia",
+    "education": "Educación",
+    "present": "Actualidad"
+  },
+  "contact": {
+    "eyebrow": "Hire me",
+    "title": "¿Trabajamos juntos?",
+    "subtitle": "Estoy disponible para proyectos freelance, consultorías y oportunidades full-time.",
+    "email": "Email",
+    "phone": "Teléfono",
+    "location_label": "Ubicación"
+  },
+  "footer": {
+    "links": "Links",
+    "contact": "Contacto",
+    "social": "Redes",
+    "rights": "Todos los derechos reservados."
+  }
+}
