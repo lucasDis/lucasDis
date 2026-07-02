@@ -45,7 +45,13 @@ function toDefaultValues(
     role: initial?.role ?? "",
     toolsCsv:
       (initial as { tools?: string[] })?.tools?.join(", ") ?? "",
-    media: initial?.media ?? [],
+    media: (initial?.media ?? []).map((m, idx) => ({
+      url: m.url ?? "",
+      type: m.type ?? "image",
+      alt: m.alt ?? "",
+      order: m.order ?? idx,
+      isCover: m.isCover ?? false,
+    })),
     externalLinks: initial?.externalLinks ?? [],
     featured: initial?.featured ?? false,
     published: initial?.published ?? false,
@@ -88,6 +94,17 @@ export function ProjectForm({
   // eslint-disable-next-line react-hooks/incompatible-library
   const title = watch("title");
 
+  // Watch media array in real-time to track cover selection
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const watchedMedia = watch("media") || [];
+
+  const handleSetCover = (index: number) => {
+    const currentMedia = form.getValues("media") || [];
+    currentMedia.forEach((_, i) => {
+      setValue(`media.${i}.isCover`, i === index, { shouldDirty: true });
+    });
+  };
+
   function handleGenerateSlug() {
     setValue("slug", slugify(title || ""), {
       shouldValidate: true,
@@ -96,6 +113,14 @@ export function ProjectForm({
   }
 
   const onSubmit = async (data: ProjectInput) => {
+    // Sincronizar el campo 'order' con la posición real del array
+    if (data.media) {
+      data.media = data.media.map((item, idx) => ({
+        ...item,
+        order: idx,
+      }));
+    }
+
     setFormError(null);
     const result: ActionResult =
       mode === "create"
@@ -250,7 +275,8 @@ export function ProjectForm({
             key={field.id}
             className="grid grid-cols-12 items-start gap-2 rounded-md border border-hairline p-3"
           >
-            <div className="col-span-12 md:col-span-5">
+            {/* URL */}
+            <div className="col-span-12 md:col-span-3">
               <Field label="URL" error={errors.media?.[index]?.url?.message}>
                 <input
                   {...register(`media.${index}.url`)}
@@ -259,6 +285,8 @@ export function ProjectForm({
                 />
               </Field>
             </div>
+
+            {/* Tipo */}
             <div className="col-span-6 md:col-span-2">
               <Field label="Tipo" error={errors.media?.[index]?.type?.message}>
                 <select {...register(`media.${index}.type`)} className={inputClass}>
@@ -267,24 +295,82 @@ export function ProjectForm({
                 </select>
               </Field>
             </div>
-            <div className="col-span-6 md:col-span-4">
+
+            {/* Alt */}
+            <div className="col-span-6 md:col-span-3">
               <Field label="Alt" error={errors.media?.[index]?.alt?.message}>
                 <input
                   {...register(`media.${index}.alt`)}
                   className={inputClass}
-                  placeholder="Descripción para accesibilidad"
+                  placeholder="Descripción de accesibilidad"
                 />
               </Field>
             </div>
-            <div className="col-span-12 flex items-end justify-end md:col-span-1">
-              <button
-                type="button"
-                onClick={() => mediaFields.remove(index)}
-                className="h-11 cursor-pointer text-body-sm text-error hover:underline"
-                aria-label="Eliminar media"
-              >
-                Quitar
-              </button>
+
+            {/* Portada selection */}
+            <div className="col-span-12 md:col-span-2 flex flex-col gap-2">
+              <span className="text-caption font-semibold uppercase tracking-wider text-muted">
+                Portada
+              </span>
+              <div className="h-11 flex items-center justify-center">
+                {watchedMedia[index]?.isCover ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-pink/15 px-3 py-1.5 text-xs font-semibold text-brand-pink border border-brand-pink/30">
+                    ★ Portada
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleSetCover(index)}
+                    className="inline-flex h-9 items-center justify-center rounded-md border border-hairline bg-canvas px-3 text-xs font-medium text-muted hover:text-ink transition-colors hover:border-muted cursor-pointer"
+                  >
+                    Marcar Portada
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Reordering arrows */}
+            <div className="col-span-6 md:col-span-1 flex flex-col gap-2">
+              <span className="text-caption font-semibold uppercase tracking-wider text-muted">
+                Posición
+              </span>
+              <div className="h-11 flex items-center justify-center gap-1">
+                <button
+                  type="button"
+                  disabled={index === 0}
+                  onClick={() => mediaFields.move(index, index - 1)}
+                  className="flex h-9 w-9 items-center justify-center rounded-md border border-hairline bg-canvas text-muted hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  title="Subir"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  disabled={index === mediaFields.fields.length - 1}
+                  onClick={() => mediaFields.move(index, index + 1)}
+                  className="flex h-9 w-9 items-center justify-center rounded-md border border-hairline bg-canvas text-muted hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  title="Bajar"
+                >
+                  ↓
+                </button>
+              </div>
+            </div>
+
+            {/* Quitar button */}
+            <div className="col-span-6 md:col-span-1 flex flex-col gap-2">
+              <span className="text-caption font-semibold uppercase tracking-wider text-muted opacity-0 select-none">
+                Eliminar
+              </span>
+              <div className="h-11 flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={() => mediaFields.remove(index)}
+                  className="h-9 cursor-pointer text-body-sm text-error hover:underline"
+                  aria-label="Eliminar media"
+                >
+                  Quitar
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -297,6 +383,7 @@ export function ProjectForm({
               type: "image",
               alt: "",
               order: mediaFields.fields.length,
+              isCover: mediaFields.fields.length === 0,
             })
           }
           className="self-start"

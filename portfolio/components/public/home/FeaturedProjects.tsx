@@ -31,7 +31,7 @@ export type FeaturedProject = {
   client?: string;
   role?: string;
   tools?: string[];
-  media: Array<{ url: string; type: "image" | "video"; alt: string; order: number }>;
+  media: Array<{ url: string; type: "image" | "video"; alt: string; order: number; isCover?: boolean }>;
   externalLinks?: Array<{ label: string; url: string }>;
 };
 
@@ -187,7 +187,7 @@ function ProjectCardPreview({
   openDetailsLabel: string;
   categoryLabel: string;
 }) {
-  const cover = project.media[0];
+  const cover = project.media.find((m) => m.isCover) || project.media[0];
 
   return (
     <button
@@ -297,7 +297,7 @@ function ProjectModal({
   onClose: () => void;
   labels: FeaturedProjectsLabels;
 }) {
-  const coverImage = project.media.find((m) => m.type === "image") || project.media[0];
+  const coverImage = project.media.find((m) => m.isCover) || project.media.find((m) => m.type === "image") || project.media[0];
   const categoryLabel = labels.categories[project.category] ?? project.category;
 
   return (

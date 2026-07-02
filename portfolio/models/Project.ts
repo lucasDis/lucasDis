@@ -14,6 +14,7 @@ const MediaItemSchema = new Schema(
     type: { type: String, enum: ["image", "video"], required: true },
     alt: { type: String, required: true, trim: true },
     order: { type: Number, default: 0 },
+    isCover: { type: Boolean, default: false },
   },
   { _id: false }
 );

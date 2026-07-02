@@ -25,6 +25,7 @@ export const mediaItemSchema = z.object({
     .int("Orden inválido")
     .min(0, "Orden inválido")
     .default(0),
+  isCover: z.boolean().default(false),
 });
 
 export const externalLinkSchema = z.object({
