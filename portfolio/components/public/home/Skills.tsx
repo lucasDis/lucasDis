@@ -100,7 +100,7 @@ export function Skills({ skills, labels }: SkillsProps) {
         {/* Tab Switcher (flotante centrado sin dots) */}
         <div
           role="tablist"
-          className="mx-auto mt-12 display inline-flex gap-2 p-1.5 border border-[#e5e5e5] rounded-full bg-surface-soft w-fit relative left-1/2 -translate-x-1/2"
+          className="mx-auto mt-12 display inline-flex gap-1.5 p-1.5 border border-[#e5e5e5] rounded-full bg-surface-soft w-fit max-w-full relative left-1/2 -translate-x-1/2"
         >
           {groupKeys.map((key) => {
             const isActive = activeTab === key;
@@ -113,7 +113,7 @@ export function Skills({ skills, labels }: SkillsProps) {
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => setActiveTab(key)}
-                className={`inline-flex items-center justify-center min-w-30 md:min-w-35 px-6 py-2 text-[14px] font-semibold rounded-full cursor-pointer transition-all duration-300 ${
+                className={`inline-flex items-center justify-center px-4 sm:px-6 py-2 text-[13px] sm:text-[14px] font-semibold rounded-full cursor-pointer transition-all duration-300 md:min-w-35 ${
                   isActive
                     ? "bg-[#0a0a0a] border border-[#0a0a0a] text-canvas shadow-sm"
                     : "bg-transparent border border-transparent text-body hover:text-[#0a0a0a]"

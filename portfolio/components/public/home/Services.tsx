@@ -107,10 +107,10 @@ function ServicesContent({ eyebrow, items }: { eyebrow?: string; title?: string;
         <ScrollSliderObserver containerRef={containerRef} itemsCount={items.length} />
 
         {/* Sticky Grid on Mobile, normal relative grid on Desktop */}
-        <div className="sticky top-20 md:top-24 h-[calc(100vh-140px)] flex flex-col justify-between py-6 lg:relative lg:top-0 lg:h-auto lg:grid lg:gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch lg:py-0 overflow-hidden lg:overflow-visible">
+        <div className="sticky top-20 md:top-24 h-[calc(100vh-140px)] flex flex-col gap-4 py-6 lg:relative lg:top-0 lg:h-auto lg:grid lg:gap-9 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch lg:py-0 overflow-hidden lg:overflow-visible">
           
           {/* Columna Izquierda: Encabezado y títulos */}
-          <div className="flex flex-col h-fit lg:h-full lg:justify-between">
+          <div className="flex flex-col h-fit lg:h-full lg:justify-between gap-2 lg:gap-0">
             <div>
               <SectionHeader
                 eyebrow={eyebrow}
@@ -141,10 +141,27 @@ function ServicesContent({ eyebrow, items }: { eyebrow?: string; title?: string;
                 ))}
               </div>
             </div>
+
+            {/* Pagination dots — mobile/tablet only */}
+            <div className="flex lg:hidden items-center gap-2 py-1" role="tablist" aria-label="Services navigation">
+              {items.map((item, idx) => (
+                <span
+                  key={item.id}
+                  role="tab"
+                  aria-selected={activeSlide === idx}
+                  aria-label={item.title}
+                  className={`block rounded-full transition-all duration-300 ${
+                    activeSlide === idx
+                      ? "w-5 h-2 bg-brand-pink"
+                      : "w-2 h-2 bg-[#cccccc]"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Columna Derecha: Card Bento Unificada (Imagen + Textos) */}
-          <div className="flex flex-col lg:flex-none lg:h-full lg:sticky lg:top-24 overflow-hidden">
+          <div className="flex flex-col flex-1 lg:flex-none lg:h-full lg:sticky lg:top-24 overflow-hidden">
             <div className="flex flex-col flex-1 rounded-xl border border-hairline bg-surface-soft overflow-hidden shadow-sm h-full">
               
               {/* Imagen superior de la card */}
