@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 /**
  * `cn` — className composition helper.
@@ -9,5 +10,5 @@ import { clsx, type ClassValue } from "clsx";
  *   cn("base", condition && "extra", ["a", "b"], className)
  */
 export function cn(...inputs: ClassValue[]): string {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }

@@ -71,7 +71,17 @@ export default async function ProjectsPage({ params }: Props) {
 
   return (
     <>
-      <SiteHeader locale={resolvedLocale} t={t} />
+      <SiteHeader
+        locale={resolvedLocale}
+        labels={{
+          projects: t("nav.projects"),
+          about: t("nav.about"),
+          services: t("nav.services"),
+          skills: t("nav.skills"),
+          cv: t("nav.cv"),
+          hire: t("nav.hire"),
+        }}
+      />
 
       <BackgroundBlobs />
 

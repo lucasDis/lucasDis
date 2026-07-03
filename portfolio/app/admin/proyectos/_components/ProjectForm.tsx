@@ -14,6 +14,7 @@ import {
 import {
   projectSchema,
   slugify,
+  parseToolsCsv,
   type ProjectFormValues,
   type ProjectInput,
 } from "../schema";
@@ -113,6 +114,9 @@ export function ProjectForm({
   }
 
   const onSubmit = async (data: ProjectInput) => {
+    // Sincronizar toolsCsv con tools
+    data.tools = parseToolsCsv(data.toolsCsv || "");
+
     // Sincronizar el campo 'order' con la posición real del array
     if (data.media) {
       data.media = data.media.map((item, idx) => ({

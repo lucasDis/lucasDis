@@ -46,7 +46,7 @@ export function Contact({ profile, t }: ContactProps) {
       aria-label={t("contact.eyebrow")}
       className="bg-transparent text-ink"
     >
-      <div className="mx-auto max-w-5xl px-6 py-24 lg:py-32">
+      <div className="mx-auto max-w-5xl px-6 py-16 lg:py-24">
         <SectionHeader
           eyebrow={t("contact.eyebrow")}
           title={t("contact.title")}

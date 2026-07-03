@@ -14,8 +14,6 @@ import { ProfileModel } from "@/models/Profile";
 import { ProjectModel } from "@/models/Project";
 import { SiteSettingsModel } from "@/models/SiteSettings";
 import { SkillModel } from "@/models/Skill";
-import { ExperienceModel } from "@/models/Experience";
-import { EducationModel } from "@/models/Education";
 import WarpShaderHero from "@/components/ui/wrap-shader";
 import Link from "next/link";
 import { SiteHeader } from "@/components/public/SiteHeader";
@@ -33,11 +31,7 @@ import {
   Skills,
   type SkillItem,
 } from "@/components/public/home/Skills";
-import {
-  Resume,
-  type ExperienceItem,
-  type EducationItem,
-} from "@/components/public/home/Resume";
+import { Resume } from "@/components/public/home/Resume";
 import { Contact } from "@/components/public/home/Contact";
 import { getTranslation } from "@/lib/i18n/server";
 import { isSupportedLocale, defaultLocale } from "@/lib/i18n/settings";
@@ -60,18 +54,13 @@ export default async function Home({ params }: Props) {
     featuredRaw,
     settingsRaw,
     skillsRaw,
-    experiencesRaw,
-    educationRaw,
   ] = await Promise.all([
     ProfileModel.findOne().lean(),
-    ProjectModel.find({ featured: true, published: true })
+    ProjectModel.find({ published: true })
       .sort({ order: 1, createdAt: -1 })
-      .limit(3)
       .lean(),
     SiteSettingsModel.findOne().lean(),
     SkillModel.find().sort({ order: 1 }).lean(),
-    ExperienceModel.find().sort({ order: 1, startDate: -1 }).lean(),
-    EducationModel.find().sort({ order: 1, startDate: -1 }).lean(),
   ]);
 
   if (!profileRaw || !settingsRaw) {
@@ -103,12 +92,20 @@ export default async function Home({ params }: Props) {
     };
   };
   const skills = JSON.parse(JSON.stringify(skillsRaw)) as SkillItem[];
-  const experiences = JSON.parse(JSON.stringify(experiencesRaw)) as ExperienceItem[];
-  const education = JSON.parse(JSON.stringify(educationRaw)) as EducationItem[];
 
   return (
     <>
-      <SiteHeader locale={resolvedLocale} t={t} />
+      <SiteHeader
+        locale={resolvedLocale}
+        labels={{
+          projects: t("nav.projects"),
+          about: t("nav.about"),
+          services: t("nav.services"),
+          skills: t("nav.skills"),
+          cv: t("nav.cv"),
+          hire: t("nav.hire"),
+        }}
+      />
 
       <BackgroundBlobs />
 
@@ -166,11 +163,60 @@ export default async function Home({ params }: Props) {
           t={t}
         />
 
-        <Services t={t} />
+        <Services
+          eyebrow={t("services.eyebrow")}
+          title={t("services.title")}
+          items={t("services.items", { returnObjects: true }) as any[]}
+        />
 
-        <Skills skills={skills} t={t} />
+        <Skills
+          skills={skills}
+          locale={resolvedLocale}
+          labels={{
+            eyebrow: t("skills.eyebrow"),
+            title: t("skills.title"),
+            subtitle: t("skills.subtitle"),
+            web: {
+              label: t("skills.groups.web.label"),
+              title: t("skills.groups.web.title"),
+              eyebrow: t("skills.groups.web.eyebrow"),
+              description: t("skills.groups.web.description"),
+              unit: t("skills.groups.web.unit"),
+            },
+            design: {
+              label: t("skills.groups.design.label"),
+              title: t("skills.groups.design.title"),
+              eyebrow: t("skills.groups.design.eyebrow"),
+              description: t("skills.groups.design.description"),
+              unit: t("skills.groups.design.unit"),
+            },
+            other: {
+              label: t("skills.groups.other.label"),
+              title: t("skills.groups.other.title"),
+              eyebrow: t("skills.groups.other.eyebrow"),
+              description: t("skills.groups.other.description"),
+              unit: t("skills.groups.other.unit"),
+            },
+            unitSingle: resolvedLocale === "en" ? "yr" : "año",
+            unitPlural: resolvedLocale === "en" ? "yrs" : "años",
+          }}
+        />
 
-        <Resume experiences={experiences} education={education} locale={resolvedLocale} t={t} />
+        <Resume
+          locale={resolvedLocale}
+          labels={{
+            eyebrow: t("resume.eyebrow"),
+            title: t("resume.title"),
+            subtitle: t("resume.subtitle"),
+            present: t("resume.present"),
+            viewResume: resolvedLocale === "en" ? "View Resume" : "Ver Currículum",
+            ctaTitle: resolvedLocale === "en" ? "Realize your vision" : "Hacé realidad tu visión",
+            ctaSubtitle: resolvedLocale === "en"
+              ? "Explore my professional timeline, education, and technical expertise in detail."
+              : "Explorá mi trayectoria profesional, formación académica y competencias técnicas al detalle.",
+            close: t("projects.close_modal"),
+          }}
+        />
 
         <Contact
           profile={{

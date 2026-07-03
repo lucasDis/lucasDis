@@ -1,128 +1,190 @@
-/**
- * Resume — public home section. Two columns (Experience / Education)
- * with a vertical timeline rail. Items sorted by `order` ASC then
- * `startDate` DESC.
- *
- * Server component — data flows down from [locale]/page.tsx.
- * The locale is used to format dates with toLocaleDateString.
- */
+"use client";
 
-import { SectionHeader } from "@/components/ui/SectionHeader";
+import { useState, useEffect } from "react";
 import type { Locale } from "@/lib/i18n/settings";
-import type { TFunction } from "i18next";
-
-export type ExperienceItem = {
-  _id: string;
-  company: string;
-  role: string;
-  startDate: string;
-  endDate: string | null;
-  description: string;
-  order: number;
-};
-
-export type EducationItem = {
-  _id: string;
-  title: string;
-  institution: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-  order: number;
-};
 
 interface ResumeProps {
-  experiences: ExperienceItem[];
-  education: EducationItem[];
   locale: Locale;
-  t: TFunction;
+  // We specify labels explicitly to keep i18n dynamic and serializable
+  labels: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    present: string;
+    viewResume: string;
+    ctaTitle: string;
+    ctaSubtitle: string;
+    close: string;
+  };
 }
 
-function formatMonthYear(iso: string, locale: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(locale === "en" ? "en-US" : "es-AR", {
-    year: "numeric",
-    month: "short",
-  });
-}
+export function Resume({ locale, labels }: ResumeProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"es" | "en">("es");
 
-function formatRange(start: string, end: string | null, locale: Locale, presentLabel: string): string {
-  const startStr = formatMonthYear(start, locale);
-  const endStr = end ? formatMonthYear(end, locale) : presentLabel;
-  return `${startStr} — ${endStr}`;
-}
+  // Sync initial tab with current site language
+  useEffect(() => {
+    setActiveTab(locale === "en" ? "en" : "es");
+  }, [locale]);
 
-export function Resume({ experiences, education, locale, t }: ResumeProps) {
-  const presentLabel = t("resume.present");
+  // Listen to the global CustomEvent from Navbar to open this modal
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener("open-cv-modal", handleOpen);
+    return () => {
+      window.removeEventListener("open-cv-modal", handleOpen);
+    };
+  }, []);
+
+  // Prevent scroll when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalStyle = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, [isOpen]);
+
+  // Escape key support
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isOpen]);
+
+  const pdfUrl = activeTab === "en" ? "/cv/cv-lucas-en.pdf" : "/cv/cv-lucas-es.pdf";
 
   return (
     <section
       id="cv"
-      aria-label={t("resume.title")}
-      className="bg-transparent text-ink"
+      aria-label={labels.title}
+      className="w-full bg-surface-soft border-y border-[#e5e5e5] text-ink select-none"
     >
-      <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
-        <SectionHeader
-          eyebrow={t("resume.eyebrow")}
-          title={t("resume.title")}
-          subtitle={t("resume.subtitle")}
-          align="center"
-        />
+      {/* Full width container, aligned matching hero layout spacing */}
+      <div className="mx-auto max-w-7xl px-6 py-12 md:py-20 flex flex-col items-center text-center">
+        
+        {/* Eyebrow */}
+        <span className="text-[11px] font-semibold text-brand-pink uppercase tracking-[0.2em] px-3 py-1 border border-brand-pink/20 rounded-full bg-white/50 mb-6">
+          {labels.eyebrow}
+        </span>
 
-        <div className="mt-16 grid grid-cols-1 gap-16 lg:grid-cols-2">
-          {/* Experience column */}
-          <div>
-            <h3 className="text-title-md text-ink">{t("resume.experience")}</h3>
-            <ol className="relative mt-8 space-y-10 border-l-2 border-hairline pl-8">
-              {experiences.map((exp) => (
-                <li key={exp._id} className="relative">
-                  <span
-                    aria-hidden="true"
-                    className="absolute -left-[37px] top-1 inline-block h-3 w-3 rounded-full bg-brand-pink ring-4 ring-canvas"
-                  />
-                  <p className="text-caption-uppercase text-muted">
-                    {formatRange(exp.startDate, exp.endDate, locale, presentLabel)}
-                  </p>
-                  <h4 className="mt-1 text-title-sm text-ink">{exp.role}</h4>
-                  <p className="mt-1 text-body-sm font-medium text-brand-pink">
-                    {exp.company}
-                  </p>
-                  {exp.description && (
-                    <p className="mt-3 whitespace-pre-line text-body-sm text-body">
-                      {exp.description}
-                    </p>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </div>
+        {/* Title inside CTA */}
+        <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-[#0a0a0a] max-w-2xl leading-tight">
+          {labels.ctaTitle}
+        </h2>
 
-          {/* Education column */}
-          <div>
-            <h3 className="text-title-md text-ink">{t("resume.education")}</h3>
-            <ol className="relative mt-8 space-y-10 border-l-2 border-hairline pl-8">
-              {education.map((edu) => (
-                <li key={edu._id} className="relative">
-                  <span
-                    aria-hidden="true"
-                    className="absolute -left-[37px] top-1 inline-block h-3 w-3 rounded-full bg-brand-teal ring-4 ring-canvas"
-                  />
-                  <p className="text-caption-uppercase text-muted">
-                    {formatRange(edu.startDate, edu.endDate, locale, presentLabel)}
-                  </p>
-                  <h4 className="mt-1 text-title-sm text-ink">{edu.title}</h4>
-                  <p className="mt-1 text-body-sm font-medium text-brand-teal">
-                    {edu.institution}
-                  </p>
-                  {edu.description && (
-                    <p className="mt-3 text-body-sm text-body">{edu.description}</p>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </div>
+        {/* Description inside CTA */}
+        <p className="mt-4 text-body text-body-md max-w-xl leading-relaxed">
+          {labels.ctaSubtitle}
+        </p>
+
+        {/* CTA Button */}
+        <div className="mt-8 flex justify-center">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="inline-flex h-12 items-center justify-center px-8 bg-[#0a0a0a] text-white rounded-full hover:bg-body-strong active:scale-95 transition-all duration-300 font-semibold text-button shadow-md cursor-pointer"
+          >
+            {labels.viewResume}
+          </button>
         </div>
       </div>
+
+      {/* CV PDF Modal (Central Stage - Compact design with top action bar) */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-12 bg-black/40 backdrop-blur-md"
+          onClick={() => setIsOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Modal Container */}
+          <div
+            className="relative w-full max-w-4xl h-full md:h-[80vh] md:max-h-205 bg-canvas rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-[#e5e5e5]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header (Compact single-line with centered tabs & side buttons) */}
+            <div className="relative flex flex-col items-center justify-center p-4 border-b border-[#e5e5e5] bg-surface-soft shrink-0 select-none">
+              
+              {/* Eyebrow */}
+              <span className="text-[10px] font-bold text-brand-pink uppercase tracking-widest">
+                {labels.eyebrow}
+              </span>
+
+              {/* Tabs Switcher Centered */}
+              <div className="flex gap-1.5 mt-2">
+                <button
+                  onClick={() => setActiveTab("es")}
+                  className={`px-4 py-1.5 text-[11px] font-bold rounded-full border transition-all ${
+                    activeTab === "es"
+                      ? "bg-surface-soft border-[#e5e5e5] text-[#0a0a0a] shadow-sm"
+                      : "bg-transparent border-transparent text-[#888888] hover:text-[#0a0a0a]"
+                  }`}
+                >
+                  ES
+                </button>
+                <button
+                  onClick={() => setActiveTab("en")}
+                  className={`px-4 py-1.5 text-[11px] font-bold rounded-full border transition-all ${
+                    activeTab === "en"
+                      ? "bg-surface-soft border-[#e5e5e5] text-[#0a0a0a] shadow-sm"
+                      : "bg-transparent border-transparent text-[#888888] hover:text-[#0a0a0a]"
+                  }`}
+                >
+                  EN
+                </button>
+              </div>
+
+              {/* Action Bar: Download + Close to the right */}
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                {/* Download PDF Button */}
+                <a
+                  href={pdfUrl}
+                  download
+                  target="_blank"
+                  rel="noreferrer"
+                  title={activeTab === "en" ? "Download PDF" : "Descargar PDF"}
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-surface-soft/90 border border-[#e5e5e5] text-[#0a0a0a] hover:bg-surface-card transition-colors"
+                >
+                  <svg className="w-4 h-4 text-body" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                </a>
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  aria-label={labels.close}
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-surface-soft/90 border border-[#e5e5e5] text-[#0a0a0a] hover:bg-surface-card transition-colors"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+
+            </div>
+
+            {/* Content Area: PDF Viewer (Fills available space) */}
+            <div className="grow p-4 md:p-6 bg-canvas h-full overflow-hidden flex flex-col items-center justify-center">
+              <div className="w-full h-full border border-[#e5e5e5] rounded-xl overflow-hidden bg-white">
+                <iframe
+                  src={`${pdfUrl}#toolbar=0`}
+                  className="w-full h-full border-0"
+                  title="Curriculum Vitae"
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
     </section>
   );
 }

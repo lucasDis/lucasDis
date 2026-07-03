@@ -1,13 +1,8 @@
-/**
- * Skills — public home section. Grouped by `group` (web / design / other),
- * each item shown with a horizontal bar.
- *
- * Server component — data flows down from [locale]/page.tsx.
- * Group labels and descriptions come from i18n translations.
- */
+"use client";
 
+import { useState } from "react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import type { TFunction } from "i18next";
+import type { Locale } from "@/lib/i18n/settings";
 
 export type SkillItem = {
   _id: string;
@@ -19,16 +14,59 @@ export type SkillItem = {
 
 interface SkillsProps {
   skills: SkillItem[];
-  t: TFunction;
+  locale?: Locale;
+  labels: {
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    web: {
+      label: string;
+      title: string;
+      eyebrow: string;
+      description: string;
+      unit: string;
+    };
+    design: {
+      label: string;
+      title: string;
+      eyebrow: string;
+      description: string;
+      unit: string;
+    };
+    other: {
+      label: string;
+      title: string;
+      eyebrow: string;
+      description: string;
+      unit: string;
+    };
+    unitSingle: string;
+    unitPlural: string;
+  };
 }
 
-const GROUP_ACCENT: Record<string, string> = {
-  web: "var(--color-brand-pink)",
-  design: "var(--color-brand-teal)",
-  other: "var(--color-brand-lavender)",
+const GROUP_CONFIG = {
+  web: {
+    dot: "var(--color-brand-pink)",
+    tagBg: "rgba(255, 77, 139, 0.15)",
+    tagColor: "var(--color-brand-pink)",
+  },
+  design: {
+    dot: "var(--color-brand-teal)",
+    tagBg: "rgba(26, 58, 58, 0.12)",
+    tagColor: "var(--color-brand-teal)",
+  },
+  other: {
+    dot: "var(--color-brand-lavender)",
+    tagBg: "rgba(184, 164, 237, 0.28)",
+    tagColor: "#5a4a8a",
+  },
 };
 
-export function Skills({ skills, t }: SkillsProps) {
+export function Skills({ skills, labels }: SkillsProps) {
+  const [activeTab, setActiveTab] = useState<"web" | "design" | "other">("web");
+
+  // Group and sort the skills from the database dynamically
   const grouped = skills.reduce<Record<string, SkillItem[]>>((acc, s) => {
     if (!acc[s.group]) acc[s.group] = [];
     acc[s.group].push(s);
@@ -39,63 +77,123 @@ export function Skills({ skills, t }: SkillsProps) {
     arr.sort((a, b) => a.order - b.order)
   );
 
+  const activeSkills = grouped[activeTab] ?? [];
+  const activeGroup = labels[activeTab];
+  const activeStyle = GROUP_CONFIG[activeTab];
   const groupKeys = ["web", "design", "other"] as const;
 
   return (
     <section
       id="habilidades"
-      aria-label={t("skills.title")}
-      className="bg-transparent text-ink"
+      aria-label={labels.title}
+      className="bg-transparent text-ink select-none"
     >
-      <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
+      {/* Reduced vertical padding to py-16 lg:py-24 to make sections more compact */}
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
         <SectionHeader
-          eyebrow={t("skills.eyebrow")}
-          title={t("skills.title")}
-          subtitle={t("skills.subtitle")}
+          eyebrow={labels.eyebrow}
+          title={labels.title}
+          subtitle={labels.subtitle}
           align="center"
         />
 
-        <div className="mt-16 grid grid-cols-1 gap-12 md:grid-cols-3">
-          {groupKeys.map((groupKey) => {
-            const label = t(`skills.groups.${groupKey}.label`);
-            const description = t(`skills.groups.${groupKey}.description`);
-            const items = grouped[groupKey] ?? [];
+        {/* Tab Switcher (flotante centrado sin dots) */}
+        <div
+          role="tablist"
+          className="mx-auto mt-12 display inline-flex gap-2 p-1.5 border border-[#e5e5e5] rounded-full bg-surface-soft w-fit relative left-1/2 -translate-x-1/2"
+        >
+          {groupKeys.map((key) => {
+            const isActive = activeTab === key;
+            const gText = labels[key];
 
-          return (
-            <div key={groupKey} className="space-y-5">
-              <div className="flex items-baseline justify-between border-b border-hairline pb-3">
-                <h3 className="text-title-md text-ink">{label}</h3>
-                <span className="text-caption-uppercase text-muted">
-                  {items.length}
-                </span>
-              </div>
-              <p className="text-body-sm text-muted">{description}</p>
-
-              <ul className="space-y-2 pt-2">
-                {items.map((skill) => (
-                  <li
-                    key={skill._id}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <span className="text-body-sm text-ink">{skill.name}</span>
-                    {skill.yearsOfExperience != null && (
-                      <span
-                        className="shrink-0 rounded-pill px-2 py-0.5 text-caption font-medium"
-                        style={{
-                          background: `color-mix(in srgb, ${GROUP_ACCENT[groupKey]} 15%, transparent)`,
-                          color: GROUP_ACCENT[groupKey],
-                        }}
-                      >
-                        {skill.yearsOfExperience}{" "}
-                        {skill.yearsOfExperience === 1 ? "año" : "años"}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
+            return (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveTab(key)}
+                className={`inline-flex items-center justify-center min-w-30 md:min-w-35 px-6 py-2 text-[14px] font-semibold rounded-full cursor-pointer transition-all duration-300 ${
+                  isActive
+                    ? "bg-[#0a0a0a] border border-[#0a0a0a] text-canvas shadow-sm"
+                    : "bg-transparent border border-transparent text-body hover:text-[#0a0a0a]"
+                }`}
+              >
+                {gText.label}
+              </button>
+            );
           })}
+        </div>
+
+        {/* Card Bento Unificada - Expanded to full max-w-7xl to match Services and About layout */}
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-[5fr_7fr] gap-10 items-start p-6 md:p-10 border border-[#e5e5e5] rounded-3xl bg-surface-card shadow-sm transition-all duration-500">
+          
+          {/* Lado izquierdo: Textos y Eyebrow (sin dot) */}
+          <div className="flex flex-col gap-5">
+            {/* Categoría Badge */}
+            <div
+              className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider uppercase w-fit"
+              style={{
+                backgroundColor: activeStyle.tagBg,
+                color: activeStyle.tagColor,
+              }}
+            >
+              {activeGroup.eyebrow}
+            </div>
+
+            {/* Título de la sección activa */}
+            <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-[#0a0a0a]">
+              {activeGroup.title}
+            </h3>
+
+            {/* Descripción activa */}
+            <p className="text-body-sm text-body leading-relaxed">
+              {activeGroup.description}
+            </p>
+
+            {/* Contador de herramientas con unidad dinámica por tab */}
+            <div className="flex items-baseline gap-2 mt-2">
+              <span className="text-5xl font-bold tracking-tight text-[#0a0a0a] leading-none">
+                {activeSkills.length}
+              </span>
+              <span className="text-[10px] font-bold tracking-widest uppercase text-[#888888]">
+                {activeGroup.unit}
+              </span>
+            </div>
+          </div>
+
+          {/* Lado derecho: Lista vertical de chips de habilidades (sin dot) */}
+          <div className="flex flex-col gap-2.5 w-full">
+            {activeSkills.map((skill) => {
+              const years = skill.yearsOfExperience;
+              const unitLabel = years === 1 ? labels.unitSingle : labels.unitPlural;
+
+              return (
+                <div
+                  key={skill._id}
+                  className="flex items-center justify-between gap-3 px-4 py-3 border border-[#e5e5e5] rounded-xl bg-canvas text-[14px] font-semibold text-[#0a0a0a] hover:border-[#cacaca] transition-colors"
+                >
+                  <span className="inline-flex items-center">
+                    {skill.name}
+                  </span>
+
+                  {years != null && (
+                    <span
+                      className="inline-flex items-baseline gap-0.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide"
+                      style={{
+                        backgroundColor: activeStyle.tagBg,
+                        color: activeStyle.tagColor,
+                      }}
+                    >
+                      <span className="text-[12px] font-black">{years}</span>
+                      {unitLabel}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
         </div>
       </div>
     </section>

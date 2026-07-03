@@ -57,38 +57,118 @@
   "services": {
     "eyebrow": "Servicios",
     "title": "Lo que hago",
-    "subtitle": "Tres áreas de especialidad que se cruzan en cada proyecto.",
     "items": [
       {
-        "title": "Diseño UX/UI",
-        "description": "Diseño de interfaces accesibles, research con usuarios y prototipado de alta fidelidad en Figma."
+        "id": "web-development",
+        "title": "Desarrollo web",
+        "description": "Sitios rápidos, responsive y pensados para convertir visitantes en clientes.",
+        "imageUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2400&auto=format&fit=crop",
+        "features": [
+          "Sitios rápidos y responsive",
+          "Código limpio y escalable",
+          "Optimización SEO y accesibilidad",
+          "Next.js & Tailwind CSS"
+        ]
       },
       {
-        "title": "Desarrollo Web Frontend",
-        "description": "Sitios responsive, accesibles (WCAG AA) y rápidos con React, Next.js y Tailwind CSS."
+        "id": "ui-ux-design",
+        "title": "Diseño UI/UX",
+        "description": "Interfaces claras, modernas y funcionales para productos digitales.",
+        "imageUrl": "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=2400&auto=format&fit=crop",
+        "features": [
+          "Prototipado en Figma",
+          "Pruebas de usabilidad",
+          "Arquitectura de información",
+          "Diseño centrado en el usuario"
+        ]
       },
       {
-        "title": "Modelado y Renderizado 3D",
-        "description": "Renders fotorrealistas en Blender para portfolio inmobiliario, producto y visualizaciones."
+        "id": "branding",
+        "title": "Branding",
+        "description": "Identidades visuales con criterio, personalidad y consistencia.",
+        "imageUrl": "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=2400&auto=format&fit=crop",
+        "features": [
+          "Manuales de marca",
+          "Logotipos y assets visuales",
+          "Estrategia de identidad",
+          "Consistencia en medios"
+        ]
+      },
+      {
+        "id": "graphic-design",
+        "title": "Diseño gráfico",
+        "description": "Flyers, piezas digitales, contenido visual y comunicación para marcas.",
+        "imageUrl": "https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=2400&auto=format&fit=crop",
+        "features": [
+          "Piezas de comunicación",
+          "Flyers y banners digitales",
+          "Edición de imagen avanzada",
+          "Composiciones visuales"
+        ]
+      },
+      {
+        "id": "three-d-design",
+        "title": "Diseño 3D",
+        "description": "Recursos visuales, modelados y piezas tridimensionales para proyectos creativos.",
+        "imageUrl": "https://images.unsplash.com/photo-1682846133858-c0599bc99874?q=80&w=1198&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "features": [
+          "Modelado y texturizado",
+          "Renders en Blender",
+          "Visualización de producto",
+          "Iluminación fotorrealista"
+        ]
+      },
+      {
+        "id": "editorial-design",
+        "title": "Diseño editorial",
+        "description": "Manuales de marca, sistemas gráficos y piezas editoriales.",
+        "imageUrl": "https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA5L3BmLXM5My1ybTM1NS1wZi1jYXJkLW1hZ2F6aW5lLW1vY2t1cC1qb2IxMDY4XzEuanBn.jpg",
+        "features": [
+          "Maquetación de libros y revistas",
+          "Tipografía editorial",
+          "Formatos impresos y digitales",
+          "Diseño de catálogos"
+        ]
+      },
+      {
+        "id": "signage-systems",
+        "title": "Señalética",
+        "description": "Comunicación espacial, sistemas visuales complejos y señalización.",
+        "imageUrl": "https://impresiondigitalgranformato.com.mx/wp-content/uploads/2025/08/Senaletica-diesel-sin-salida.webp",
+        "features": [
+          "Sistemas visuales urbanos",
+          "Diseño de orientación (Wayfinding)",
+          "Planos y mapas espaciales",
+          "Gráfica vehicular e institucional"
+        ]
       }
     ]
   },
   "skills": {
-    "eyebrow": "Skills",
+    "eyebrow": "Habilidades",
     "title": "Habilidades",
     "subtitle": "Herramientas y metodologías que uso en el día a día.",
     "groups": {
       "web": {
         "label": "Web",
-        "description": "Stack frontend, CMS y maquetación."
+        "title": "Desarrollo Web",
+        "eyebrow": "Frontend & CMS",
+        "description": "Creación de interfaces rápidas, responsivas y accesibles con herramientas frontend modernas y gestores de contenido.",
+        "unit": "tecnologías"
       },
       "design": {
         "label": "Diseño",
-        "description": "Herramientas gráficas, motion y 3D."
+        "title": "Diseño Gráfico & Motion",
+        "eyebrow": "Suite Creativa",
+        "description": "Modelado 3D, motion graphics, identidades visuales y piezas editoriales en Figma, Adobe y Blender.",
+        "unit": "herramientas"
       },
       "other": {
-        "label": "Otros",
-        "description": "Metodologías y competencias transversales."
+        "label": "Metodologías",
+        "title": "Estándares y Metodologías",
+        "eyebrow": "Método y Estándares",
+        "description": "Competencias y buenas prácticas transversales como Mobile-First, SEO On-Page y accesibilidad web (WCAG).",
+        "unit": "métodos"
       }
     }
   },
@@ -101,7 +181,7 @@
     "present": "Actualidad"
   },
   "contact": {
-    "eyebrow": "Hire me",
+    "eyebrow": "Contacto",
     "title": "¿Trabajamos juntos?",
     "subtitle": "Estoy disponible para proyectos freelance, consultorías y oportunidades full-time.",
     "email": "Email",

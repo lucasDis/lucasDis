@@ -64,6 +64,7 @@ export const projectSchema = z.object({
   client: z.string().default(""),
   role: z.string().default(""),
   toolsCsv: z.string().default(""),
+  tools: z.array(z.string()).default([]),
   media: z.array(mediaItemSchema).default([]),
   externalLinks: z.array(externalLinkSchema).default([]),
   featured: z.boolean().default(false),

@@ -57,19 +57,90 @@
   "services": {
     "eyebrow": "Services",
     "title": "What I do",
-    "subtitle": "Three areas of expertise that intersect in every project.",
     "items": [
       {
-        "title": "UX/UI Design",
-        "description": "Accessible interface design, user research and high-fidelity prototyping in Figma."
+        "id": "web-development",
+        "title": "Web Development",
+        "description": "Fast, responsive websites designed to convert visitors into clients.",
+        "imageUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2400&auto=format&fit=crop",
+        "features": [
+          "Fast & responsive sites",
+          "Clean & scalable code",
+          "SEO & accessibility tuning",
+          "Next.js & Tailwind CSS"
+        ]
       },
       {
-        "title": "Frontend Web Development",
-        "description": "Responsive, accessible (WCAG AA) and performant sites with React, Next.js and Tailwind CSS."
+        "id": "ui-ux-design",
+        "title": "UI/UX Design",
+        "description": "Clear, modern and functional interfaces for digital products.",
+        "imageUrl": "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=2400&auto=format&fit=crop",
+        "features": [
+          "Figma prototyping",
+          "Usability testing",
+          "Information architecture",
+          "User-centered design"
+        ]
       },
       {
-        "title": "3D Modeling & Rendering",
-        "description": "Photorealistic renders in Blender for real estate, product and visualization portfolios."
+        "id": "branding",
+        "title": "Branding",
+        "description": "Visual identities with criteria, personality and consistency.",
+        "imageUrl": "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=2400&auto=format&fit=crop",
+        "features": [
+          "Brand guidelines",
+          "Logos & visual assets",
+          "Identity strategy",
+          "Multi-channel consistency"
+        ]
+      },
+      {
+        "id": "graphic-design",
+        "title": "Graphic Design",
+        "description": "Flyers, digital pieces, visual content and brand communication.",
+        "imageUrl": "https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=2400&auto=format&fit=crop",
+        "features": [
+          "Communication pieces",
+          "Digital flyers & banners",
+          "Advanced image editing",
+          "Visual compositions"
+        ]
+      },
+      {
+        "id": "three-d-design",
+        "title": "3D Design",
+        "description": "Visual resources, modeling and 3D pieces for creative projects.",
+        "imageUrl": "https://images.unsplash.com/photo-1682846133858-c0599bc99874?q=80&w=1198&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "features": [
+          "Modeling & texturing",
+          "Blender rendering",
+          "Product visualization",
+          "Photorealistic lighting"
+        ]
+      },
+      {
+        "id": "editorial-design",
+        "title": "Editorial Design",
+        "description": "Brand guidelines, graphic systems and editorial pieces.",
+        "imageUrl": "https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA5L3BmLXM5My1ybTM1NS1wZi1jYXJkLW1hZ2F6aW5lLW1vY2t1cC1qb2IxMDY4XzEuanBn.jpg",
+        "features": [
+          "Book & magazine layout",
+          "Editorial typography",
+          "Print & digital formats",
+          "Catalog design"
+        ]
+      },
+      {
+        "id": "signage-systems",
+        "title": "Signage",
+        "description": "Spatial communication, complex visual systems and signage.",
+        "imageUrl": "https://impresiondigitalgranformato.com.mx/wp-content/uploads/2025/08/Senaletica-diesel-sin-salida.webp",
+        "features": [
+          "Urban visual systems",
+          "Wayfinding design",
+          "Spatial maps & plans",
+          "Vehicular & institutional graphics"
+        ]
       }
     ]
   },
@@ -80,15 +151,24 @@
     "groups": {
       "web": {
         "label": "Web",
-        "description": "Frontend stack, CMS and markup."
+        "title": "Web Development",
+        "eyebrow": "Frontend & CMS",
+        "description": "Building fast, responsive and accessible interfaces with modern frontend tooling and CMS platforms.",
+        "unit": "technologies"
       },
       "design": {
         "label": "Design",
-        "description": "Graphic tools, motion and 3D."
+        "title": "Graphic & Motion Design",
+        "eyebrow": "Creative Suite",
+        "description": "Crafting visual identities, editorial layouts, motion and 3D across the Adobe suite, Figma and Blender.",
+        "unit": "tools"
       },
       "other": {
-        "label": "Other",
-        "description": "Methodologies and cross-cutting competencies."
+        "label": "Methodology",
+        "title": "Standards & Methodology",
+        "eyebrow": "Method & Standards",
+        "description": "Practices that keep the work usable, findable and inclusive — from mobile-first layouts to WCAG accessibility.",
+        "unit": "methods"
       }
     }
   },

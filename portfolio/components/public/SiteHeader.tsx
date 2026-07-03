@@ -1,9 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { LocaleSwitcher } from "@/components/ui/LocaleSwitcher";
 import type { Locale } from "@/lib/i18n/settings";
-import type { TFunction } from "i18next";
 
 /**
  * SiteHeader — top navigation for public pages.
@@ -19,25 +20,32 @@ import type { TFunction } from "i18next";
 
 interface SiteHeaderProps {
   locale: Locale;
-  t: TFunction;
+  labels: {
+    projects: string;
+    about: string;
+    services: string;
+    skills: string;
+    cv: string;
+    hire: string;
+  };
 }
 
-export function SiteHeader({ locale, t }: SiteHeaderProps) {
+export function SiteHeader({ locale, labels }: SiteHeaderProps) {
   const base = `/${locale}`;
 
   const NAV_LINKS = [
-    { href: `${base}/#proyectos`, label: t("nav.projects") },
-    { href: `${base}/#sobre-mi`, label: t("nav.about") },
-    { href: `${base}/#servicios`, label: t("nav.services") },
-    { href: `${base}/#habilidades`, label: t("nav.skills") },
-    { href: `${base}/#cv`, label: t("nav.cv") },
+    { href: `${base}/#proyectos`, label: labels.projects },
+    { href: `${base}/#sobre-mi`, label: labels.about },
+    { href: `${base}/#servicios`, label: labels.services },
+    { href: `${base}/#habilidades`, label: labels.skills },
+    { href: `${base}/#cv`, label: labels.cv },
   ];
 
   return (
     <header
       className={cn(
         "sticky top-0 z-40 w-full",
-        "bg-canvas/85 backdrop-blur supports-[backdrop-filter]:bg-canvas/70",
+        "bg-canvas/85 backdrop-blur supports-backdrop-filter:bg-canvas/70",
         "border-b border-hairline"
       )}
     >
@@ -54,6 +62,12 @@ export function SiteHeader({ locale, t }: SiteHeaderProps) {
             <Link
               key={link.href}
               href={link.href}
+              onClick={(e) => {
+                if (link.href.endsWith("/#cv")) {
+                  e.preventDefault();
+                  window.dispatchEvent(new CustomEvent("open-cv-modal"));
+                }
+              }}
               className="px-3 py-2 text-nav-link text-body hover:text-ink transition-colors rounded-sm"
             >
               {link.label}
@@ -69,7 +83,7 @@ export function SiteHeader({ locale, t }: SiteHeaderProps) {
             size="sm"
             className="hidden sm:inline-flex"
           >
-            {t("nav.hire")}
+            {labels.hire}
           </ButtonLink>
         </div>
       </div>
