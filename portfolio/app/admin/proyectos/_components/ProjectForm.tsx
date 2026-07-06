@@ -42,6 +42,7 @@ function toDefaultValues(
     longDescription: initial?.longDescription ?? "",
     category: (initial?.category ?? "web") as ProjectFormValues["category"],
     year: initial?.year ?? new Date().getFullYear(),
+    status: (initial?.status ?? "completed") as ProjectFormValues["status"],
     client: initial?.client ?? "",
     role: initial?.role ?? "",
     toolsCsv:
@@ -185,7 +186,7 @@ export function ProjectForm({
           </div>
         </Field>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-3">
           <Field label="Categoría" error={errors.category?.message}>
             <select {...register("category")} className={inputClass}>
               {CATEGORIES.map((c) => (
@@ -195,7 +196,7 @@ export function ProjectForm({
               ))}
             </select>
           </Field>
-          <Field label="Año" error={errors.year?.message}>
+          <Field label="Año de creación" error={errors.year?.message}>
             <input
               type="number"
               {...register("year")}
@@ -203,6 +204,12 @@ export function ProjectForm({
               min={1900}
               max={2100}
             />
+          </Field>
+          <Field label="Estado del proyecto" error={errors.status?.message}>
+            <select {...register("status")} className={inputClass}>
+              <option value="completed">Terminado</option>
+              <option value="ongoing">En curso / Trabajando actualmente</option>
+            </select>
           </Field>
         </div>
       </fieldset>

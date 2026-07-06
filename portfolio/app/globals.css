@@ -340,7 +340,8 @@ body {
 }
 
 .project-card-preview {
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   text-align: left;
   background: transparent;
@@ -389,7 +390,19 @@ body {
 }
 
 .project-card-preview-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   padding: 1rem 0.25rem 0;
+}
+
+/* Reserve space for exactly 2 lines of title so all cards align */
+.project-card-preview-body h3 {
+  min-height: calc(2 * var(--text-title-md, 18px) * var(--text-title-md--line-height, 1.4));
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* ── Project modal ── */

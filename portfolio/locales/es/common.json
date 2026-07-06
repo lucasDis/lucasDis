@@ -42,7 +42,13 @@
     "view_all": "Ver todos los proyectos",
     "all_eyebrow": "Portfolio completo",
     "all_title": "Todos los proyectos",
-    "all_subtitle": "Exploración completa de mis trabajos en diseño web, UX/UI, branding y 3D."
+    "all_subtitle": "Exploración completa de mis trabajos en diseño web, UX/UI, branding y 3D.",
+    "status": {
+      "completed": "Terminado",
+      "ongoing": "Trabajando actualmente"
+    },
+    "search_placeholder": "Buscar por título, herramientas, rol...",
+    "all_years": "Todos los años"
   },
   "about": {
     "eyebrow": "Sobre mí",

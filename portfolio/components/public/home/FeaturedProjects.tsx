@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { PROJECT_FILTER_CATEGORIES } from "@/lib/project-categories";
+import { getProxiedUrl } from "@/lib/media";
 
 export type FeaturedProject = {
   _id: string;
@@ -27,6 +28,7 @@ export type FeaturedProject = {
   longDescription?: string;
   category: string;
   year: number;
+  status?: "completed" | "ongoing";
   client?: string;
   role?: string;
   tools?: string[];
@@ -49,6 +51,10 @@ export type FeaturedProjectsLabels = {
   /** i18next template string, e.g. "Ver detalles de {{title}}" */
   openDetailsTemplate: string;
   viewAll?: string;
+  statusCompleted?: string;
+  statusOngoing?: string;
+  searchPlaceholder?: string;
+  allYears?: string;
 };
 
 interface FeaturedProjectsProps {
@@ -56,6 +62,7 @@ interface FeaturedProjectsProps {
   labels: FeaturedProjectsLabels;
   showViewAll?: boolean;
   viewAllHref?: string;
+  featuredOnly?: boolean;
 }
 
 const FILTER_CATEGORIES = PROJECT_FILTER_CATEGORIES;
@@ -65,17 +72,40 @@ export function FeaturedProjects({
   labels,
   showViewAll = false,
   viewAllHref,
+  featuredOnly = false,
 }: FeaturedProjectsProps) {
   const [filter, setFilter] = useState<string>("all");
+  const [search, setSearch] = useState<string>("");
+  const [year, setYear] = useState<string>("");
   const [activeProject, setActiveProject] = useState<FeaturedProject | null>(null);
 
-  // Filter grid to show ONLY featured projects on the homepage
-  const featuredProjects = projects.filter((p) => p.featured);
+  // Extract all unique years from projects
+  const years = Array.from(new Set(projects.map((p) => p.year))).sort((a, b) => b - a);
+
+  // Filter grid to show ONLY featured projects if featuredOnly is active
+  const baseProjects = featuredOnly ? projects.filter((p) => p.featured) : projects;
   
-  const filteredProjects =
-    filter === "all"
-      ? featuredProjects
-      : featuredProjects.filter((p) => p.category === filter);
+  // Filter by category, year, and search query
+  const filteredProjects = baseProjects.filter((p) => {
+    // 1. Category Filter
+    const matchesCategory = filter === "all" || p.category === filter;
+    
+    // 2. Year Filter
+    const matchesYear = !year || p.year.toString() === year;
+    
+    // 3. Search Filter
+    const query = search.toLowerCase().trim();
+    const matchesSearch =
+      !query ||
+      p.title.toLowerCase().includes(query) ||
+      p.shortDescription.toLowerCase().includes(query) ||
+      (p.longDescription && p.longDescription.toLowerCase().includes(query)) ||
+      (p.client && p.client.toLowerCase().includes(query)) ||
+      (p.role && p.role.toLowerCase().includes(query)) ||
+      (p.tools && p.tools.some((t) => t.toLowerCase().includes(query)));
+      
+    return matchesCategory && matchesYear && matchesSearch;
+  });
 
   const openModal = useCallback((project: FeaturedProject) => {
     setActiveProject(project);
@@ -85,22 +115,22 @@ export function FeaturedProjects({
     setActiveProject(null);
   }, []);
 
-  // Circular navigation across ALL published projects (not just featured ones)
+  // Circular navigation across currently filtered projects
   const handleNextProject = useCallback(() => {
-    if (!activeProject || projects.length <= 1) return;
-    const currentIndex = projects.findIndex((p) => p._id === activeProject._id);
+    if (!activeProject || filteredProjects.length <= 1) return;
+    const currentIndex = filteredProjects.findIndex((p) => p._id === activeProject._id);
     if (currentIndex === -1) return;
-    const nextIndex = (currentIndex + 1) % projects.length;
-    setActiveProject(projects[nextIndex]);
-  }, [activeProject, projects]);
+    const nextIndex = (currentIndex + 1) % filteredProjects.length;
+    setActiveProject(filteredProjects[nextIndex]);
+  }, [activeProject, filteredProjects]);
 
   const handlePrevProject = useCallback(() => {
-    if (!activeProject || projects.length <= 1) return;
-    const currentIndex = projects.findIndex((p) => p._id === activeProject._id);
+    if (!activeProject || filteredProjects.length <= 1) return;
+    const currentIndex = filteredProjects.findIndex((p) => p._id === activeProject._id);
     if (currentIndex === -1) return;
-    const prevIndex = (currentIndex - 1 + projects.length) % projects.length;
-    setActiveProject(projects[prevIndex]);
-  }, [activeProject, projects]);
+    const prevIndex = (currentIndex - 1 + filteredProjects.length) % filteredProjects.length;
+    setActiveProject(filteredProjects[prevIndex]);
+  }, [activeProject, filteredProjects]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -138,24 +168,62 @@ export function FeaturedProjects({
           align="left"
         />
 
-        <div
-          className="filter-chips mt-10"
-          role="tablist"
-          aria-label={labels.filterLabel}
-        >
-          {FILTER_CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              role="tab"
-              aria-selected={filter === cat}
-              data-active={filter === cat}
-              onClick={() => setFilter(cat)}
-              className="filter-chip"
-            >
-              {labels.categories[cat] ?? cat}
-            </button>
-          ))}
+        <div className="mt-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div
+            className="filter-chips"
+            role="tablist"
+            aria-label={labels.filterLabel}
+          >
+            {FILTER_CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                role="tab"
+                aria-selected={filter === cat}
+                data-active={filter === cat}
+                onClick={() => setFilter(cat)}
+                className="filter-chip"
+              >
+                {labels.categories[cat] ?? cat}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:max-w-md">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder={labels.searchPlaceholder ?? "Buscar proyectos..."}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full px-4 py-2 text-body-sm bg-surface-soft border border-hairline rounded-full focus:outline-none focus:ring-1 focus:ring-brand-pink focus:border-brand-pink text-ink placeholder:text-muted"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink text-body-sm cursor-pointer"
+                  title="Limpiar búsqueda"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            {years.length > 0 && (
+              <select
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                className="px-4 py-2 text-body-sm bg-surface-soft border border-hairline rounded-full focus:outline-none focus:ring-1 focus:ring-brand-pink focus:border-brand-pink text-ink cursor-pointer"
+              >
+                <option value="">{labels.allYears ?? "Todos los años"}</option>
+                {years.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
       </div>
 
@@ -174,6 +242,7 @@ export function FeaturedProjects({
                   onOpen={() => openModal(project)}
                   openDetailsLabel={labels.openDetailsTemplate.replace("{{title}}", project.title)}
                   categoryLabel={labels.categories[project.category] ?? project.category}
+                  labels={labels}
                 />
               ))}
             </div>
@@ -206,11 +275,13 @@ function ProjectCardPreview({
   onOpen,
   openDetailsLabel,
   categoryLabel,
+  labels,
 }: {
   project: FeaturedProject;
   onOpen: () => void;
   openDetailsLabel: string;
   categoryLabel: string;
+  labels: FeaturedProjectsLabels;
 }) {
   const cover = project.media.find((m) => m.isCover) || project.media[0];
 
@@ -225,11 +296,12 @@ function ProjectCardPreview({
         {cover ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={cover.url}
+            src={getProxiedUrl(cover.url)}
             alt={cover.alt || project.title}
             loading="lazy"
             decoding="async"
             className="project-card-preview-image"
+            referrerPolicy="no-referrer"
           />
         ) : (
           <div className="project-card-preview-image bg-surface-strong" />
@@ -237,9 +309,19 @@ function ProjectCardPreview({
       </div>
 
       <div className="project-card-preview-body">
-        <div className="flex items-center justify-between text-caption-uppercase text-muted">
+        <div className="flex items-center justify-between text-caption-uppercase text-muted gap-2">
           <span>{categoryLabel}</span>
-          <span>{project.year}</span>
+          <span>
+            {project.year}
+            {project.status && (
+              <>
+                {" • "}
+                {project.status === "ongoing"
+                  ? (labels.statusOngoing ?? "En curso")
+                  : (labels.statusCompleted ?? "Terminado")}
+              </>
+            )}
+          </span>
         </div>
         <h3 className="mt-2 text-title-md text-ink transition-colors group-hover:text-brand-pink">
           {project.title}
@@ -291,7 +373,7 @@ function ProjectMediaItem({ url, type, alt, onZoom }: { url: string; type: "imag
     return (
       <div className="w-full h-full bg-surface-strong flex items-center justify-center">
         <video
-          src={url}
+          src={getProxiedUrl(url)}
           controls
           className="w-full h-full object-contain"
           aria-label={alt}
@@ -307,10 +389,11 @@ function ProjectMediaItem({ url, type, alt, onZoom }: { url: string; type: "imag
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={url}
+        src={getProxiedUrl(url)}
         alt={alt}
         className="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]"
         loading="eager"
+        referrerPolicy="no-referrer"
       />
     </div>
   );
@@ -453,7 +536,7 @@ function ProjectModal({
                   >
                     {mediaItem.type === "video" ? (
                       <video
-                        src={mediaItem.url}
+                        src={getProxiedUrl(mediaItem.url)}
                         className="w-full h-full object-cover pointer-events-none"
                         muted
                         playsInline
@@ -462,7 +545,7 @@ function ProjectModal({
                     ) : (
                       <div
                         className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${mediaItem.url})` }}
+                        style={{ backgroundImage: `url(${getProxiedUrl(mediaItem.url)})` }}
                       />
                     )}
                     {mediaItem.type === "video" && (
@@ -490,6 +573,14 @@ function ProjectModal({
                   </span>
                   <span className="text-[12px] font-semibold text-[#888888]">
                     {project.year}
+                    {project.status && (
+                      <>
+                        {" • "}
+                        {project.status === "ongoing"
+                          ? (labels.statusOngoing ?? "En curso")
+                          : (labels.statusCompleted ?? "Terminado")}
+                      </>
+                    )}
                   </span>
                 </div>
                 <h1
@@ -619,9 +710,10 @@ function ProjectModal({
           {/* Zoomed Image */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={activeMedia.url}
+            src={getProxiedUrl(activeMedia.url)}
             alt={activeMedia.alt || project.title}
             className="max-w-full max-h-full object-contain rounded shadow-2xl select-none"
+            referrerPolicy="no-referrer"
           />
         </div>
       )}

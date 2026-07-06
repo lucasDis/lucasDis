@@ -3,11 +3,12 @@ import { dbConnect } from "@/lib/db";
 import { ProjectModel } from "@/models/Project";
 import { CategoryFilter } from "./_components/CategoryFilter";
 import { ProjectsTable } from "./_components/ProjectsTable";
+import { AdminFilterBar } from "./_components/AdminFilterBar";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; year?: string; search?: string }>;
 };
 
 const VALID_CATEGORIES = [
@@ -20,7 +21,7 @@ const VALID_CATEGORIES = [
 type ProjectCategory = (typeof VALID_CATEGORIES)[number];
 
 export default async function ProyectosPage({ searchParams }: PageProps) {
-  const { category } = await searchParams;
+  const { category, year, search } = await searchParams;
   const active: ProjectCategory | null = (VALID_CATEGORIES as readonly string[]).includes(
     category ?? ""
   )
@@ -28,11 +29,50 @@ export default async function ProyectosPage({ searchParams }: PageProps) {
     : null;
 
   await dbConnect();
-  const [allProjects, byCategory] = await Promise.all([
-    ProjectModel.find(active ? { category: active } : {})
+
+  // Get distinct years from all projects to populate the dropdown
+  const allYears = await ProjectModel.distinct("year").exec();
+  const sortedYears = (allYears as number[]).sort((a, b) => b - a);
+
+  // Build filter query
+  const query: any = {};
+  if (active) {
+    query.category = active;
+  }
+  if (year) {
+    query.year = Number(year);
+  }
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { shortDescription: { $regex: search, $options: "i" } },
+      { longDescription: { $regex: search, $options: "i" } },
+      { client: { $regex: search, $options: "i" } },
+      { role: { $regex: search, $options: "i" } },
+      { tools: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  // Aggregate with match to show matching count on categories
+  const countQuery: any = {};
+  if (year) countQuery.year = Number(year);
+  if (search) {
+    countQuery.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { shortDescription: { $regex: search, $options: "i" } },
+      { longDescription: { $regex: search, $options: "i" } },
+      { client: { $regex: search, $options: "i" } },
+      { role: { $regex: search, $options: "i" } },
+      { tools: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const [filteredProjects, byCategory] = await Promise.all([
+    ProjectModel.find(query)
       .sort({ order: 1, year: -1, createdAt: -1 })
       .lean(),
     ProjectModel.aggregate<{ _id: ProjectCategory; count: number }>([
+      { $match: countQuery },
       { $group: { _id: "$category", count: { $sum: 1 } } },
     ]),
   ]);
@@ -43,7 +83,7 @@ export default async function ProyectosPage({ searchParams }: PageProps) {
   }
 
   // Serialize for the client/table component
-  const rows = allProjects.map((p) => ({
+  const rows = filteredProjects.map((p) => ({
     _id: String(p._id),
     title: p.title,
     slug: p.slug,
@@ -76,7 +116,14 @@ export default async function ProyectosPage({ searchParams }: PageProps) {
         </Link>
       </header>
 
-      <CategoryFilter active={active} counts={counts} />
+      <CategoryFilter
+        active={active}
+        counts={counts}
+        currentYear={year}
+        currentSearch={search}
+      />
+
+      <AdminFilterBar years={sortedYears} />
 
       <ProjectsTable rows={rows} />
     </div>

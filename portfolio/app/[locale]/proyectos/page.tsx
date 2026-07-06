@@ -88,6 +88,7 @@ export default async function ProjectsPage({ params }: Props) {
       <main className="flex-1">
         <FeaturedProjects
           projects={projects}
+          featuredOnly={false}
           labels={{
             eyebrow: t("projects.all_eyebrow"),
             title: t("projects.all_title"),
@@ -102,6 +103,10 @@ export default async function ProjectsPage({ params }: Props) {
               PROJECT_FILTER_CATEGORIES.map((cat) => [cat, t(`projects.categories.${cat}`)])
             ),
             openDetailsTemplate: t("projects.open_details"),
+            statusCompleted: t("projects.status.completed"),
+            statusOngoing: t("projects.status.ongoing"),
+            searchPlaceholder: t("projects.search_placeholder"),
+            allYears: t("projects.all_years"),
           }}
         />
       </main>

@@ -133,6 +133,7 @@ export default async function Home({ params }: Props) {
 
         <FeaturedProjects
           projects={featured}
+          featuredOnly={true}
           showViewAll={true}
           viewAllHref={`/${resolvedLocale}/proyectos`}
           labels={{
@@ -150,6 +151,10 @@ export default async function Home({ params }: Props) {
             ),
             openDetailsTemplate: t("projects.open_details"),
             viewAll: t("projects.view_all"),
+            statusCompleted: t("projects.status.completed"),
+            statusOngoing: t("projects.status.ongoing"),
+            searchPlaceholder: t("projects.search_placeholder"),
+            allYears: t("projects.all_years"),
           }}
         />
 

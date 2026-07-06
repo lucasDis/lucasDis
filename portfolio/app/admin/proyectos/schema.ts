@@ -61,6 +61,7 @@ export const projectSchema = z.object({
     .int("Año inválido")
     .min(1900, { error: "Año demasiado antiguo" })
     .max(2100, { error: "Año demasiado lejano" }),
+  status: z.enum(["completed", "ongoing"]).default("completed"),
   client: z.string().default(""),
   role: z.string().default(""),
   toolsCsv: z.string().default(""),

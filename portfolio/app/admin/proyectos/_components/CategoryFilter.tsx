@@ -16,15 +16,27 @@ const CATEGORIES = [
 export function CategoryFilter({
   active,
   counts,
+  currentYear,
+  currentSearch,
 }: {
   active: string | null;
   counts: Record<string, number>;
+  currentYear?: string;
+  currentSearch?: string;
 }) {
   return (
     <div className="flex flex-wrap gap-2">
       {CATEGORIES.map((c) => {
         const isActive = active === c.value;
-        const href = c.value ? `/admin/proyectos?category=${c.value}` : "/admin/proyectos";
+        
+        const params = new URLSearchParams();
+        if (c.value) params.set("category", c.value);
+        if (currentYear) params.set("year", currentYear);
+        if (currentSearch) params.set("search", currentSearch);
+        
+        const queryString = params.toString();
+        const href = queryString ? `/admin/proyectos?${queryString}` : "/admin/proyectos";
+        
         const count = c.value ? counts[c.value] ?? 0 : Object.values(counts).reduce((a, b) => a + b, 0);
         return (
           <Link

@@ -47,6 +47,13 @@ const ProjectSchema = new Schema(
       index: true,
     },
     year: { type: Number, required: true },
+    status: {
+      type: String,
+      enum: ["completed", "ongoing"],
+      default: "completed",
+      required: true,
+      index: true,
+    },
     client: { type: String, trim: true },
     role: { type: String, trim: true },
     tools: { type: [String], default: [] },
