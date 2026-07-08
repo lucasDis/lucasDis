@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -65,6 +65,7 @@ export function About3DCard({ name: _name }: { name: string }) {
 
     // iOS 13+: permission required — flag it, wait for user tap
     setGyroState("needed");
+    return;
   }, []);
 
   // ── iOS 13+ tap-to-enable handler ──────────────────────────────────────
