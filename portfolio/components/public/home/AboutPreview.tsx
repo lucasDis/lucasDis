@@ -1,13 +1,17 @@
 /**
  * AboutPreview — public home "About" section.
  *
- * Expanded CV-style layout: full professional profile on the left,
- * personal info card on the right. Anchored at #sobre-mi for nav.
+ * Two-column layout:
+ *   - Left  : display title + 2 body paragraphs (server-rendered)
+ *   - Right : 3D card that tilts on cursor movement (client component)
  *
- * Server component — data flows down from [locale]/page.tsx.
+ * Design tokens: Clay.com adapted system (canvas #fffaf0, accent #ff4d8b, Inter)
+ * Server component — data flows from [locale]/page.tsx.
  */
 
 import type { TFunction } from "i18next";
+import { About3DCard } from "./About3DCard";
+import { RoleCycler } from "./RoleCycler";
 
 interface AboutPreviewProps {
   profile: {
@@ -20,6 +24,11 @@ interface AboutPreviewProps {
 }
 
 export function AboutPreview({ profile, t }: AboutPreviewProps) {
+  const paragraphs = profile.professionalProfile
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
   return (
     <section
       id="sobre-mi"
@@ -27,50 +36,57 @@ export function AboutPreview({ profile, t }: AboutPreviewProps) {
       className="bg-transparent text-ink"
     >
       <div className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-7">
-            <p className="text-caption-uppercase text-muted">{t("about.eyebrow")}</p>
-            <h2 className="mt-3 text-display-md text-ink lg:text-display-lg">
-              {t("about.title")}
-            </h2>
-            <p className="mt-8 whitespace-pre-line text-body-md leading-relaxed text-body">
-              {profile.professionalProfile}
-            </p>
-          </div>
+        {/* Panel with dot pattern */}
+        <div
+          className="relative overflow-hidden rounded-xl border border-hairline bg-surface-soft p-8 lg:p-14"
+          style={{
+            backgroundImage: "radial-gradient(var(--color-hairline) 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+          }}
+        >
+          <div className="relative z-10 grid gap-14 lg:grid-cols-2 lg:gap-20 lg:items-center">
 
-          <aside className="lg:col-span-5">
-            <div className="rounded-xl border border-hairline bg-surface-card p-8">
-              <h3 className="text-title-md text-ink">{t("about.personal_info")}</h3>
-              <dl className="mt-6 space-y-5">
-                <div>
-                  <dt className="text-caption-uppercase text-muted">{t("about.name")}</dt>
-                  <dd className="mt-1 text-body-md text-ink">{profile.fullName}</dd>
+            {/* ── LEFT: Text ── */}
+            <div>
+              <p className="text-caption-uppercase text-muted">{t("about.eyebrow")}</p>
+              <h2
+                className="mt-4 text-ink"
+                style={{
+                  fontSize: "clamp(32px, 5vw, 52px)",
+                  fontWeight: 500,
+                  lineHeight: 1.08,
+                  letterSpacing: "-1.8px",
+                }}
+              >
+                {t("about.title")}
+              </h2>
+
+              <div className="mt-8 space-y-5">
+                {paragraphs.map((para, i) => (
+                  <p key={i} className="text-body-md leading-relaxed text-body">
+                    {para}
+                  </p>
+                ))}
+              </div>
+
+              {/* Personal info pills */}
+              <dl className="mt-10 flex flex-wrap gap-3">
+                <div className="flex items-center gap-2 rounded-full border border-hairline bg-canvas px-4 py-2">
+                  <dt className="text-caption-uppercase text-muted">{t("about.location")}</dt>
+                  <dd className="text-body-sm font-medium text-ink">{profile.location}</dd>
                 </div>
-                <div>
-                  <dt className="text-caption-uppercase text-muted">
-                    {t("about.location")}
-                  </dt>
-                  <dd className="mt-1 text-body-md text-ink">{profile.location}</dd>
-                </div>
-                {profile.birthLocation && (
-                  <div>
-                    <dt className="text-caption-uppercase text-muted">
-                      {t("about.origin")}
-                    </dt>
-                    <dd className="mt-1 text-body-md text-ink">
-                      {profile.birthLocation}
-                    </dd>
-                  </div>
-                )}
-                <div>
+                <div className="flex items-center gap-2 rounded-full border border-hairline bg-canvas px-4 py-2" style={{ overflow: "hidden" }}>
                   <dt className="text-caption-uppercase text-muted">{t("about.role_label")}</dt>
-                  <dd className="mt-1 text-body-md text-ink">
-                    {t("about.role_value")}
+                  <dd className="text-body-sm font-medium text-ink">
+                    <RoleCycler />
                   </dd>
                 </div>
               </dl>
             </div>
-          </aside>
+
+            {/* ── RIGHT: 3D Tilt Card (Client Component) ── */}
+            <About3DCard name={profile.fullName} />
+          </div>
         </div>
       </div>
     </section>
