@@ -18,7 +18,8 @@ import { useCallback, useEffect, useState } from "react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { PROJECT_FILTER_CATEGORIES } from "@/lib/project-categories";
-import { getProxiedUrl } from "@/lib/media";
+import { MediaRenderer } from "@/components/ui/MediaRenderer";
+
 
 export type FeaturedProject = {
   _id: string;
@@ -294,14 +295,12 @@ function ProjectCardPreview({
     >
       <div className="project-card-preview-image-wrap">
         {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={getProxiedUrl(cover.url)}
+          <MediaRenderer
+            src={cover.url}
             alt={cover.alt || project.title}
-            loading="lazy"
-            decoding="async"
+            type={cover.type}
+            aspectRatio=""
             className="project-card-preview-image"
-            referrerPolicy="no-referrer"
           />
         ) : (
           <div className="project-card-preview-image bg-surface-strong" />
@@ -334,70 +333,23 @@ function ProjectCardPreview({
   );
 }
 
-function getEmbedUrl(url: string): string | null {
-  if (!url) return null;
-
-  // YouTube regex
-  const ytMatch = url.match(
-    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i
-  );
-  if (ytMatch && ytMatch[1]) {
-    return `https://www.youtube.com/embed/${ytMatch[1]}`;
-  }
-
-  // Vimeo regex
-  const vimeoMatch = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i);
-  if (vimeoMatch && vimeoMatch[1]) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-  }
-
-  return null;
-}
-
 function ProjectMediaItem({ url, type, alt, onZoom }: { url: string; type: "image" | "video"; alt: string; onZoom?: () => void }) {
-  if (type === "video") {
-    const embedUrl = getEmbedUrl(url);
-    if (embedUrl) {
-      return (
-        <div className="relative w-full h-full overflow-hidden bg-surface-strong">
-          <iframe
-            src={embedUrl}
-            title={alt}
-            className="absolute inset-0 w-full h-full border-0 object-contain"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      );
-    }
-    return (
-      <div className="w-full h-full bg-surface-strong flex items-center justify-center">
-        <video
-          src={getProxiedUrl(url)}
-          controls
-          className="w-full h-full object-contain"
-          aria-label={alt}
-        />
-      </div>
-    );
-  }
-
   return (
     <div
-      className="w-full h-full bg-surface-strong flex items-center justify-center cursor-zoom-in"
-      onClick={onZoom}
+      className="w-full h-full"
+      onClick={type === "image" ? onZoom : undefined}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={getProxiedUrl(url)}
+      <MediaRenderer
+        src={url}
         alt={alt}
-        className="w-full h-full object-contain transition-transform duration-500 hover:scale-[1.02]"
-        loading="eager"
-        referrerPolicy="no-referrer"
+        type={type}
+        aspectRatio=""
+        className="w-full h-full"
       />
     </div>
   );
 }
+
 
 function ProjectModal({
   project,
@@ -536,7 +488,7 @@ function ProjectModal({
                   >
                     {mediaItem.type === "video" ? (
                       <video
-                        src={getProxiedUrl(mediaItem.url)}
+                        src={mediaItem.url}
                         className="w-full h-full object-cover pointer-events-none"
                         muted
                         playsInline
@@ -545,7 +497,7 @@ function ProjectModal({
                     ) : (
                       <div
                         className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${getProxiedUrl(mediaItem.url)})` }}
+                        style={{ backgroundImage: `url(${mediaItem.url})` }}
                       />
                     )}
                     {mediaItem.type === "video" && (
@@ -710,7 +662,7 @@ function ProjectModal({
           {/* Zoomed Image */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={getProxiedUrl(activeMedia.url)}
+            src={activeMedia.url}
             alt={activeMedia.alt || project.title}
             className="max-w-full max-h-full object-contain rounded shadow-2xl select-none"
             referrerPolicy="no-referrer"

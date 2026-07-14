@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { HTMLMotionProps, MotionConfig, motion } from "motion/react"
+import { MotionConfig, motion } from "motion/react"
 import { cn } from "@/lib/utils"
 
 interface TextStaggerHoverProps {
@@ -144,7 +144,7 @@ export const HoverSliderImageWrap = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "grid overflow-hidden rounded-2xl border border-black/10 bg-black/5 shadow-sm dark:border-white/10 dark:bg-white/5 *:col-start-1 *:col-end-1 *:row-start-1 *:row-end-1 *:size-full",
+        "grid place-items-center overflow-hidden *:col-start-1 *:col-end-1 *:row-start-1 *:row-end-1 *:size-full",
         className
       )}
       {...props}
@@ -155,21 +155,32 @@ export const HoverSliderImageWrap = React.forwardRef<
 HoverSliderImageWrap.displayName = "HoverSliderImageWrap"
 
 export const HoverSliderImage = React.forwardRef<
-  HTMLImageElement,
-  HTMLMotionProps<"img"> & HoverSliderImageProps
->(({ index, imageUrl, className, ...props }, ref) => {
+  HTMLDivElement,
+  Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> & HoverSliderImageProps & {
+    loading?: 'eager' | 'lazy'
+    decoding?: 'async' | 'sync' | 'auto'
+    alt?: string
+  }
+>(({ index, imageUrl, className, alt, loading, decoding, ...props }, ref) => {
   const { activeSlide } = useHoverSliderContext()
 
   return (
-    <motion.img
+    <motion.div
       ref={ref}
-      src={imageUrl}
-      className={cn("inline-block align-middle", className)}
+      className="relative"
       transition={{ ease: [0.33, 1, 0.68, 1], duration: 0.8 }}
       variants={clipPathVariants}
       animate={activeSlide === index ? "visible" : "hidden"}
       {...props}
-    />
+    >
+      <img
+        src={imageUrl}
+        alt={alt ?? ""}
+        loading={loading}
+        decoding={decoding}
+        className={cn("absolute inset-0 w-full h-full object-cover object-center", className)}
+      />
+    </motion.div>
   )
 })
 

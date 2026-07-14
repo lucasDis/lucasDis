@@ -172,7 +172,6 @@ function ServicesContent({ eyebrow, items }: { eyebrow?: string; title?: string;
                     index={index}
                     imageUrl={service.imageUrl}
                     alt={service.title}
-                    className="size-full object-cover object-center"
                     loading={index === 0 ? "eager" : "lazy"}
                     decoding="async"
                   />

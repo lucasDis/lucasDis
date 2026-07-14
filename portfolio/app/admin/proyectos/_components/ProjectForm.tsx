@@ -18,6 +18,7 @@ import {
   type ProjectFormValues,
   type ProjectInput,
 } from "../schema";
+import { MediaCard } from "@/components/ui/MediaCard";
 
 const CATEGORIES = [
   { value: "web", label: "Web" },
@@ -316,6 +317,18 @@ export function ProjectForm({
                   placeholder="Descripción de accesibilidad"
                 />
               </Field>
+            </div>
+
+            {/* Media preview + validate */}
+            <div className="col-span-12 md:col-span-2">
+              <span className="text-caption font-semibold uppercase tracking-wider text-muted block mb-1">
+                Preview
+              </span>
+              <MediaCard
+                url={watchedMedia[index]?.url ?? ""}
+                type={watchedMedia[index]?.type ?? "image"}
+                alt={watchedMedia[index]?.alt ?? ""}
+              />
             </div>
 
             {/* Portada selection */}

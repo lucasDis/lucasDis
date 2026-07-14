@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { DeleteProjectButton } from "./DeleteProjectButton";
-import { getProxiedUrl } from "@/lib/media";
 
 const CATEGORY_LABEL: Record<string, string> = {
   web: "Web",
@@ -64,7 +63,7 @@ export function ProjectsTable({ rows }: { rows: Row[] }) {
                   {firstImage ? (
                     <div className="relative h-12 w-16 overflow-hidden rounded-md bg-surface-soft">
                       <Image
-                        src={getProxiedUrl(firstImage.url)}
+                        src={firstImage.url}
                         alt={firstImage.alt}
                         fill
                         sizes="64px"
