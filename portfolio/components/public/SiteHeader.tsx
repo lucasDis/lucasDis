@@ -137,7 +137,7 @@ export function SiteHeader({ locale, labels }: SiteHeaderProps) {
               aria-expanded={isOpen}
               aria-controls="mobile-menu"
               onClick={() => setIsOpen((v) => !v)}
-              className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-[5px] rounded-sm hover:bg-surface-soft transition-colors focus-visible:outline-2 focus-visible:outline-brand-pink"
+              className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.25 rounded-sm hover:bg-surface-soft transition-colors focus-visible:outline-2 focus-visible:outline-brand-pink"
             >
               <motion.span
                 className="block h-px w-5 bg-ink origin-center"

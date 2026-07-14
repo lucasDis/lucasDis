@@ -156,12 +156,13 @@ HoverSliderImageWrap.displayName = "HoverSliderImageWrap"
 
 export const HoverSliderImage = React.forwardRef<
   HTMLDivElement,
-  Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> & HoverSliderImageProps & {
-    loading?: 'eager' | 'lazy'
-    decoding?: 'async' | 'sync' | 'auto'
-    alt?: string
+  HoverSliderImageProps & {
+    className?: string;
+    loading?: "eager" | "lazy";
+    decoding?: "async" | "sync" | "auto";
+    alt?: string;
   }
->(({ index, imageUrl, className, alt, loading, decoding, ...props }, ref) => {
+>(({ index, imageUrl, className, alt, loading, decoding }, ref) => {
   const { activeSlide } = useHoverSliderContext()
 
   return (
@@ -171,7 +172,6 @@ export const HoverSliderImage = React.forwardRef<
       transition={{ ease: [0.33, 1, 0.68, 1], duration: 0.8 }}
       variants={clipPathVariants}
       animate={activeSlide === index ? "visible" : "hidden"}
-      {...props}
     >
       <img
         src={imageUrl}
