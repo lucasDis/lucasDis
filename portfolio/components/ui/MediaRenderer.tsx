@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useId } from "react";
+import { proxyMediaUrl } from "@/lib/proxy-media";
 
 export type MediaRendererProps = {
   src: string;
@@ -66,6 +67,8 @@ export function MediaRenderer({
   onLoad,
   onError,
 }: MediaRendererProps) {
+  // Route all CDN assets through the server-side proxy to bypass CORS.
+  const proxied = proxyMediaUrl(src);
   const [state, setState] = useState<RenderState>(!src ? "error" : "loading");
   const imgRef = useRef<HTMLImageElement>(null);
   const id = useId();
@@ -80,12 +83,12 @@ export function MediaRenderer({
     if (img.complete && img.naturalWidth > 0) handleLoad();
     else if (img.complete && img.naturalWidth === 0) handleError();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [src, type]);
+  }, [proxied, type]);
 
   const wrapClass = ["media-renderer-wrap", aspectRatio, className].filter(Boolean).join(" ");
 
   if (type === "video") {
-    const embedUrl = getEmbedUrl(src);
+    const embedUrl = getEmbedUrl(src);  // embed detection uses original URL
     if (embedUrl) {
       return (
         <div className={wrapClass}>
@@ -101,7 +104,7 @@ export function MediaRenderer({
         {state === "error" ? <Fallback alt={alt} type="video" src={src} /> : (
           <>
             <Skeleton visible={state === "loading"} />
-            <video id={id} src={src} aria-label={alt} controls preload="metadata"
+            <video id={id} src={proxyMediaUrl(src)} aria-label={alt} controls preload="metadata"
               className="media-renderer-video" onLoadedMetadata={handleLoad} onError={handleError} />
           </>
         )}
@@ -115,8 +118,8 @@ export function MediaRenderer({
         <>
           <Skeleton visible={state === "loading"} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img ref={imgRef} id={id} src={src} alt={alt} title={title}
-            loading="lazy" decoding="async" referrerPolicy="no-referrer"
+          <img ref={imgRef} id={id} src={proxied} alt={alt} title={title}
+            loading="lazy" decoding="async"
             className="media-renderer-img" onLoad={handleLoad} onError={handleError} />
         </>
       )}

@@ -3,6 +3,7 @@
 import * as React from "react"
 import { MotionConfig, motion } from "motion/react"
 import { cn } from "@/lib/utils"
+import { proxyMediaUrl } from "@/lib/proxy-media"
 
 interface TextStaggerHoverProps {
   text: string
@@ -174,7 +175,7 @@ export const HoverSliderImage = React.forwardRef<
       animate={activeSlide === index ? "visible" : "hidden"}
     >
       <img
-        src={imageUrl}
+        src={proxyMediaUrl(imageUrl)}
         alt={alt ?? ""}
         loading={loading}
         decoding={decoding}

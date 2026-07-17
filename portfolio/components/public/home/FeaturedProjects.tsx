@@ -26,6 +26,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { PROJECT_FILTER_CATEGORIES } from "@/lib/project-categories";
 import { MediaRenderer } from "@/components/ui/MediaRenderer";
+import { proxyMediaUrl } from "@/lib/proxy-media";
 
 /** Duration per story segment (images). Videos use a longer default. */
 const STORY_DURATION_IMAGE_MS = 5000;
@@ -458,13 +459,14 @@ function MediaThumb({
   type: "image" | "video";
   alt: string;
 }) {
-  // Use real <img> with no-referrer (CSS background-image cannot set referrerPolicy,
-  // so many CDNs leave thumbnails blank while the main stage loads fine).
+  // Use eager loading: lazy-loading intersection observer misses images
+  // inside overflow:hidden containers (the thumbnail strip). Proxy the URL
+  // so both ImageKit and UploadThing assets bypass CORS restrictions.
   if (type === "video") {
     return (
       <>
         <video
-          src={url}
+          src={proxyMediaUrl(url)}
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           muted
           playsInline
@@ -482,11 +484,10 @@ function MediaThumb({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={url}
+      src={proxyMediaUrl(url)}
       alt={alt}
-      loading="lazy"
+      loading="eager"
       decoding="async"
-      referrerPolicy="no-referrer"
       className="absolute inset-0 w-full h-full object-cover pointer-events-none"
     />
   );
@@ -523,6 +524,8 @@ function ProjectModal({
   // Store rafId in a ref so the cleanup closure always sees the latest ID,
   // even across React Strict Mode double-invocations.
   const rafIdRef = useRef(0);
+  // Ref for the thumbnail strip container — used to auto-scroll active thumb.
+  const thumbStripRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
@@ -570,6 +573,47 @@ function ProjectModal({
     storyProgressRef.current = 0;
     setStoryProgress(0);
   }, [activeMediaIndex, storyEpoch, storyDurationMs]);
+
+  // Auto-scroll thumbnail strip so the active thumb is always visible and
+  // the next adjacent thumb peeks into view (scroll-hint UX).
+  useEffect(() => {
+    const strip = thumbStripRef.current;
+    if (!strip) return;
+    const buttons = strip.querySelectorAll<HTMLButtonElement>("button");
+    const activeBtn = buttons[activeMediaIndex];
+    if (!activeBtn) return;
+
+    const stripRect = strip.getBoundingClientRect();
+    const btnRect = activeBtn.getBoundingClientRect();
+    const PEEK_PX = 24; // how many px of the next thumbnail to show
+
+    // Check if we need to scroll right (next thumb out of view)
+    const nextBtn = buttons[activeMediaIndex + 1];
+    if (nextBtn) {
+      const nextRect = nextBtn.getBoundingClientRect();
+      const overflowRight = nextRect.right - stripRect.right + PEEK_PX;
+      if (overflowRight > 0) {
+        strip.scrollBy({ left: overflowRight, behavior: "smooth" });
+        return;
+      }
+    }
+
+    // Check if we need to scroll left (prev thumb out of view)
+    const prevBtn = buttons[activeMediaIndex - 1];
+    if (prevBtn) {
+      const prevRect = prevBtn.getBoundingClientRect();
+      const overflowLeft = stripRect.left - prevRect.left + PEEK_PX;
+      if (overflowLeft > 0) {
+        strip.scrollBy({ left: -overflowLeft, behavior: "smooth" });
+        return;
+      }
+    }
+
+    // Active thumb itself out of view — scroll it into view
+    if (btnRect.left < stripRect.left || btnRect.right > stripRect.right) {
+      activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    }
+  }, [activeMediaIndex]);
 
   // JS-driven auto-advance — reliable (CSS onAnimationEnd is flaky with
   // prefers-reduced-motion, remounts, and transform animations).
@@ -813,7 +857,7 @@ function ProjectModal({
 
             {/* Thumbnail strip — real <img> so referrerPolicy applies */}
             {hasMultipleMedia && (
-              <div className="h-20 sm:h-24 lg:h-28 bg-surface-soft flex items-center px-3 sm:px-4 overflow-x-auto border-t border-[#e5e5e5] gap-2 sm:gap-3 shrink-0 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              <div ref={thumbStripRef} className="h-20 sm:h-24 lg:h-28 bg-surface-soft flex items-center px-3 sm:px-4 overflow-x-auto border-t border-[#e5e5e5] gap-2 sm:gap-3 shrink-0 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {media.map((mediaItem, idx) => (
                   <button
                     key={`${mediaItem.url}-${idx}`}
