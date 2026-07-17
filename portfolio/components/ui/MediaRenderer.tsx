@@ -67,8 +67,11 @@ export function MediaRenderer({
   onLoad,
   onError,
 }: MediaRendererProps) {
-  // Route all CDN assets through the server-side proxy to bypass CORS.
-  const proxied = proxyMediaUrl(src);
+  // Images go through the server-side proxy to bypass CORS.
+  // Videos are served directly — the browser media engine handles cross-origin
+  // video without the same restrictions, and large files can't be proxied
+  // through Vercel serverless functions.
+  const proxied = proxyMediaUrl(src, type);
   const [state, setState] = useState<RenderState>(!src ? "error" : "loading");
   const imgRef = useRef<HTMLImageElement>(null);
   const id = useId();
@@ -104,7 +107,8 @@ export function MediaRenderer({
         {state === "error" ? <Fallback alt={alt} type="video" src={src} /> : (
           <>
             <Skeleton visible={state === "loading"} />
-            <video id={id} src={proxyMediaUrl(src)} aria-label={alt} controls preload="metadata"
+            {/* Videos served directly from CDN — no proxy needed */}
+            <video id={id} src={src} aria-label={alt} controls preload="metadata"
               className="media-renderer-video" onLoadedMetadata={handleLoad} onError={handleError} />
           </>
         )}

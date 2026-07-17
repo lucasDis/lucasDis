@@ -1,24 +1,36 @@
-import { NextRequest, NextResponse } from "next/server";
-import { isAllowedHostname } from "@/lib/proxy-media";
-
 /**
+ * Edge Runtime media proxy.
+ *
  * GET /api/media?url=<encoded-cdn-url>
  *
- * Server-side media proxy. Fetches the asset from the CDN and streams it
- * back to the browser, bypassing any client-side CORS / referrer restrictions.
+ * Fetches the asset from the CDN server-side and streams it back to the
+ * browser, bypassing any client-side CORS / referrer restrictions.
+ *
+ * Why Edge Runtime (not Node.js Serverless)?
+ *  - No 10 s timeout on Vercel Hobby — Edge functions run on Cloudflare's
+ *    network with a much higher execution ceiling.
+ *  - Native Web Streams API: the response body is piped without buffering
+ *    the entire file in memory.
+ *  - No Node.js-specific `next: { revalidate }` needed — cache is handled
+ *    via standard Cache-Control response headers.
  *
  * Security:
- *  - Only hostnames in PROXY_ALLOWED_HOSTNAMES are forwarded.
- *  - Only https: protocol is accepted.
+ *  - Only https: URLs from PROXY_ALLOWED_HOSTNAMES are forwarded.
  *
- * Video support:
- *  - Forwards the Range header so browsers can seek videos correctly
- *    (the CDN returns 206 Partial Content; we forward that status too).
+ * Video:
+ *  - Videos bypass this proxy entirely (see proxy-media.ts) — the browser
+ *    <video> element streams directly from the CDN. This route handles
+ *    images and other static assets only.
  *
  * Caching:
- *  - Sets Cache-Control so the browser and CDN edge cache the response,
- *    avoiding repeated proxy round-trips for the same asset.
+ *  - Cache-Control headers tell the browser (and Vercel's CDN edge) to
+ *    cache the response, avoiding repeated proxy round-trips.
  */
+export const runtime = "edge";
+
+import { type NextRequest, NextResponse } from "next/server";
+import { isAllowedHostname } from "@/lib/proxy-media";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const rawUrl = searchParams.get("url");
@@ -43,34 +55,32 @@ export async function GET(request: NextRequest) {
     return new NextResponse("Domain not allowed", { status: 403 });
   }
 
-  // --- Build upstream request headers ---
-  const upstreamHeaders: Record<string, string> = {
-    // Identify ourselves — some CDNs require a user-agent
-    "User-Agent": "Mozilla/5.0 (compatible; portfolio-proxy/1.0)",
-  };
-
-  // Forward Range for video seeking (206 Partial Content)
-  const range = request.headers.get("range");
-  if (range) upstreamHeaders["Range"] = range;
-
-  // --- Fetch from CDN ---
+  // --- Fetch from CDN (Edge Runtime uses the native Web Fetch API) ---
   let upstream: Response;
   try {
     upstream = await fetch(rawUrl, {
-      headers: upstreamHeaders,
-      // Next.js fetch cache: revalidate after 1 h so the proxy isn't a
-      // bottleneck while still being fast for repeated requests.
-      next: { revalidate: 3600 },
+      headers: {
+        // Some CDNs require a user-agent to serve assets
+        "User-Agent": "Mozilla/5.0 (compatible; portfolio-proxy/1.0)",
+      },
+      // Edge runtime: no Next.js cache extensions — we control caching
+      // via Cache-Control on the *response* headers instead.
+      cache: "no-store",
     });
   } catch (err) {
     console.error("[media-proxy] fetch error:", err);
     return new NextResponse("Failed to fetch upstream resource", { status: 502 });
   }
 
+  if (!upstream.ok && upstream.status !== 206) {
+    return new NextResponse(`Upstream error: ${upstream.status}`, {
+      status: upstream.status,
+    });
+  }
+
   // --- Build response headers ---
   const responseHeaders = new Headers();
 
-  // Forward content headers the browser needs
   const forward = [
     "content-type",
     "content-length",
@@ -85,13 +95,13 @@ export async function GET(request: NextRequest) {
     if (value) responseHeaders.set(header, value);
   }
 
-  // Cache in the browser for 1 h; allow CDN edge caching for 24 h
+  // Cache in the browser for 1 h; Vercel CDN edge can cache for 24 h
   responseHeaders.set(
     "cache-control",
     "public, max-age=3600, stale-while-revalidate=86400"
   );
 
-  // Stream the body back with the correct status (200 or 206)
+  // Stream the body back (Edge Runtime pipes ReadableStream natively)
   return new NextResponse(upstream.body, {
     status: upstream.status,
     headers: responseHeaders,

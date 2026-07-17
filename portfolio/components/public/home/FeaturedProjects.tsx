@@ -461,12 +461,14 @@ function MediaThumb({
 }) {
   // Use eager loading: lazy-loading intersection observer misses images
   // inside overflow:hidden containers (the thumbnail strip). Proxy the URL
-  // so both ImageKit and UploadThing assets bypass CORS restrictions.
+  // so both ImageKit and UploadThing image assets bypass CORS restrictions.
+  // Videos bypass the proxy — the browser media engine handles cross-origin
+  // video natively and Vercel can't stream large files through serverless fns.
   if (type === "video") {
     return (
       <>
         <video
-          src={proxyMediaUrl(url)}
+          src={url}
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           muted
           playsInline
@@ -484,7 +486,7 @@ function MediaThumb({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={proxyMediaUrl(url)}
+      src={proxyMediaUrl(url, "image")}
       alt={alt}
       loading="eager"
       decoding="async"
