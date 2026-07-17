@@ -48,7 +48,12 @@
       "ongoing": "Trabajando actualmente"
     },
     "search_placeholder": "Buscar por título, herramientas, rol...",
-    "all_years": "Todos los años"
+    "all_years": "Todos los años",
+    "read_more": "Ver más",
+    "show_less": "Ver menos",
+    "pause_slideshow": "Pausar",
+    "play_slideshow": "Reproducir",
+    "expand_image": "Ampliar"
   },
   "about": {
     "eyebrow": "Sobre mí",

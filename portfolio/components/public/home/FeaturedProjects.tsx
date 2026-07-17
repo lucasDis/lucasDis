@@ -14,11 +14,23 @@
  * on filter chips, aria-label on close button, navigation with Arrow keys.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type TouchEvent as ReactTouchEvent,
+} from "react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { PROJECT_FILTER_CATEGORIES } from "@/lib/project-categories";
 import { MediaRenderer } from "@/components/ui/MediaRenderer";
+
+/** Duration per story segment (images). Videos use a longer default. */
+const STORY_DURATION_IMAGE_MS = 5000;
+const STORY_DURATION_VIDEO_MS = 8000;
+const SWIPE_THRESHOLD_PX = 48;
 
 
 export type FeaturedProject = {
@@ -56,6 +68,11 @@ export type FeaturedProjectsLabels = {
   statusOngoing?: string;
   searchPlaceholder?: string;
   allYears?: string;
+  readMore?: string;
+  showLess?: string;
+  pauseSlideshow?: string;
+  playSlideshow?: string;
+  expandImage?: string;
 };
 
 interface FeaturedProjectsProps {
@@ -285,60 +302,142 @@ function ProjectCardPreview({
   labels: FeaturedProjectsLabels;
 }) {
   const cover = project.media.find((m) => m.isCover) || project.media[0];
+  const [expanded, setExpanded] = useState(false);
+  const [canExpand, setCanExpand] = useState(false);
+  const descRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const el = descRef.current;
+    if (!el) return;
+    // Measure only while collapsed (line-clamp-2)
+    setCanExpand(el.scrollHeight > el.clientHeight + 1);
+  }, [project.shortDescription]);
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="project-card-preview group"
-      aria-label={openDetailsLabel}
+    <article
+      className={`project-card-preview group ${expanded ? "is-expanded" : ""}`}
     >
-      <div className="project-card-preview-image-wrap">
-        {cover ? (
-          <MediaRenderer
-            src={cover.url}
-            alt={cover.alt || project.title}
-            type={cover.type}
-            aspectRatio=""
-            className="project-card-preview-image"
-          />
-        ) : (
-          <div className="project-card-preview-image bg-surface-strong" />
+      <button
+        type="button"
+        onClick={onOpen}
+        className="w-full text-left border-0 bg-transparent p-0 cursor-pointer"
+        aria-label={openDetailsLabel}
+      >
+        <div className="project-card-preview-image-wrap">
+          {cover ? (
+            <MediaRenderer
+              src={cover.url}
+              alt={cover.alt || project.title}
+              type={cover.type}
+              aspectRatio=""
+              className="project-card-preview-image"
+            />
+          ) : (
+            <div className="project-card-preview-image bg-surface-strong" />
+          )}
+        </div>
+      </button>
+
+      {/*
+        Body: position:relative so the expanded overlay can use absolute
+        positioning relative to this container (covers both title + desc area).
+      */}
+      <div className="project-card-preview-body relative px-0.5">
+        {/* Meta + title: fade when description overlay is open */}
+        <div
+          className={`transition-opacity duration-200 ${
+            expanded ? "opacity-25" : "opacity-100"
+          }`}
+        >
+          <button
+            type="button"
+            onClick={onOpen}
+            className="w-full text-left border-0 bg-transparent p-0 cursor-pointer"
+          >
+            <div className="flex items-center justify-between text-caption-uppercase text-muted gap-2">
+              <span>{categoryLabel}</span>
+              <span>
+                {project.year}
+                {project.status && (
+                  <>
+                    {" • "}
+                    {project.status === "ongoing"
+                      ? (labels.statusOngoing ?? "En curso")
+                      : (labels.statusCompleted ?? "Terminado")}
+                  </>
+                )}
+              </span>
+            </div>
+            <h3
+              className={`mt-2 text-title-md text-ink transition-colors ${
+                expanded ? "" : "group-hover:text-brand-pink"
+              }`}
+            >
+              {project.title}
+            </h3>
+          </button>
+        </div>
+
+        {/*
+          Description slot — fixed collapsed footprint so the grid never
+          reflows. The "Ver más" button reveals an absolute overlay that
+          covers the entire .project-card-preview-body (positioned relative
+          to this parent), growing upward over the title.
+        */}
+        <div className="mt-2">
+          {/* Invisible placeholder preserves height when overlay is open */}
+          <div className={expanded ? "invisible" : ""} aria-hidden={expanded}>
+            <p
+              ref={descRef}
+              className="line-clamp-2 text-body-sm text-body"
+            >
+              {project.shortDescription}
+            </p>
+            {canExpand && (
+              <button
+                type="button"
+                onClick={() => setExpanded(true)}
+                className="mt-1 text-body-sm font-medium text-brand-pink hover:underline cursor-pointer bg-transparent border-0 p-0"
+              >
+                {labels.readMore ?? "Ver más"}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/*
+          Overlay positioned absolute to .project-card-preview-body.
+          bottom-0 anchors to the bottom of the body; the overlay grows
+          upward, covering the title area. z-20 paints over siblings.
+        */}
+        {expanded && (
+          <div className="project-card-desc-overlay absolute inset-x-0 bottom-0 z-20 flex flex-col gap-1 rounded-md border border-hairline bg-canvas/95 p-2.5 shadow-md backdrop-blur-sm">
+            <p className="text-body-sm text-body">{project.shortDescription}</p>
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              className="self-start text-body-sm font-medium text-brand-pink hover:underline cursor-pointer bg-transparent border-0 p-0"
+            >
+              {labels.showLess ?? "Ver menos"}
+            </button>
+          </div>
         )}
       </div>
-
-      <div className="project-card-preview-body">
-        <div className="flex items-center justify-between text-caption-uppercase text-muted gap-2">
-          <span>{categoryLabel}</span>
-          <span>
-            {project.year}
-            {project.status && (
-              <>
-                {" • "}
-                {project.status === "ongoing"
-                  ? (labels.statusOngoing ?? "En curso")
-                  : (labels.statusCompleted ?? "Terminado")}
-              </>
-            )}
-          </span>
-        </div>
-        <h3 className="mt-2 text-title-md text-ink transition-colors group-hover:text-brand-pink">
-          {project.title}
-        </h3>
-        <p className="mt-2 line-clamp-2 text-body-sm text-body">
-          {project.shortDescription}
-        </p>
-      </div>
-    </button>
+    </article>
   );
 }
 
-function ProjectMediaItem({ url, type, alt, onZoom }: { url: string; type: "image" | "video"; alt: string; onZoom?: () => void }) {
+function ProjectMediaItem({
+  url,
+  type,
+  alt,
+}: {
+  url: string;
+  type: "image" | "video";
+  alt: string;
+}) {
   return (
-    <div
-      className="w-full h-full"
-      onClick={type === "image" ? onZoom : undefined}
-    >
+    <div className="absolute inset-0 w-full h-full pointer-events-none">
       <MediaRenderer
         src={url}
         alt={alt}
@@ -350,6 +449,48 @@ function ProjectMediaItem({ url, type, alt, onZoom }: { url: string; type: "imag
   );
 }
 
+function MediaThumb({
+  url,
+  type,
+  alt,
+}: {
+  url: string;
+  type: "image" | "video";
+  alt: string;
+}) {
+  // Use real <img> with no-referrer (CSS background-image cannot set referrerPolicy,
+  // so many CDNs leave thumbnails blank while the main stage loads fine).
+  if (type === "video") {
+    return (
+      <>
+        <video
+          src={url}
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          muted
+          playsInline
+          preload="metadata"
+        />
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={url}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      referrerPolicy="no-referrer"
+      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+    />
+  );
+}
 
 function ProjectModal({
   project,
@@ -364,14 +505,109 @@ function ProjectModal({
   onPrev: () => void;
   labels: FeaturedProjectsLabels;
 }) {
-  const [activeMediaIndex, setActiveMediaIndex] = useState<number>(0);
-  const [isZoomed, setIsZoomed] = useState<boolean>(false);
+  const media = useMemo(
+    () =>
+      [...(project.media ?? [])].sort(
+        (a, b) => (a.order ?? 0) - (b.order ?? 0)
+      ),
+    [project.media]
+  );
 
-  // Reset active media and zoom when project changes
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [storyEpoch, setStoryEpoch] = useState(0);
+  /** 0..1 fill of the active story segment (JS-driven, not CSS animationend) */
+  const [storyProgress, setStoryProgress] = useState(0);
+  const storyProgressRef = useRef(0);
+  // Store rafId in a ref so the cleanup closure always sees the latest ID,
+  // even across React Strict Mode double-invocations.
+  const rafIdRef = useRef(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  const hasMultipleMedia = media.length > 1;
+  const activeMedia = media[activeMediaIndex] ?? media[0];
+  const categoryLabel = labels.categories[project.category] ?? project.category;
+  const storyDurationMs =
+    activeMedia?.type === "video"
+      ? STORY_DURATION_VIDEO_MS
+      : STORY_DURATION_IMAGE_MS;
+
+  const goToMedia = useCallback((index: number) => {
+    setActiveMediaIndex(index);
+    setStoryEpoch((e) => e + 1);
+  }, []);
+
+  const goNextMedia = useCallback(() => {
+    if (media.length <= 1) return;
+    setActiveMediaIndex((i) => (i + 1) % media.length);
+    setStoryEpoch((e) => e + 1);
+  }, [media.length]);
+
+  const goPrevMedia = useCallback(() => {
+    if (media.length <= 1) return;
+    setActiveMediaIndex((i) => (i - 1 + media.length) % media.length);
+    setStoryEpoch((e) => e + 1);
+  }, [media.length]);
+
+  // Reset when project changes
   useEffect(() => {
     setActiveMediaIndex(0);
     setIsZoomed(false);
-  }, [project]);
+    setIsPaused(false);
+    setStoryEpoch((e) => e + 1);
+  }, [project._id]);
+
+  // Prefer reduced motion: start paused (user can still play manually)
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq.matches) setIsPaused(true);
+  }, [project._id]);
+
+  // Reset segment progress whenever the active slide (or epoch) changes
+  useEffect(() => {
+    storyProgressRef.current = 0;
+    setStoryProgress(0);
+  }, [activeMediaIndex, storyEpoch, storyDurationMs]);
+
+  // JS-driven auto-advance — reliable (CSS onAnimationEnd is flaky with
+  // prefers-reduced-motion, remounts, and transform animations).
+  // rafIdRef keeps the latest requestAnimationFrame ID so the cleanup
+  // can always cancel it, regardless of closure capture timing.
+  useEffect(() => {
+    if (!hasMultipleMedia || isPaused || isZoomed) return;
+
+    let last = performance.now();
+    const duration = Math.max(1, storyDurationMs);
+
+    const tick = (now: number) => {
+      const dt = now - last;
+      last = now;
+      const next = Math.min(1, storyProgressRef.current + dt / duration);
+      storyProgressRef.current = next;
+      setStoryProgress(next);
+      if (next >= 1) {
+        goNextMedia();
+        return;
+      }
+      rafIdRef.current = requestAnimationFrame(tick);
+    };
+
+    rafIdRef.current = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = 0;
+    };
+  }, [
+    hasMultipleMedia,
+    isPaused,
+    isZoomed,
+    activeMediaIndex,
+    storyEpoch,
+    storyDurationMs,
+    goNextMedia,
+  ]);
 
   // Keyboard escape for zoom lightbox
   useEffect(() => {
@@ -386,27 +622,42 @@ function ProjectModal({
     return () => window.removeEventListener("keydown", handleEscape, true);
   }, [isZoomed]);
 
-  const activeMedia = project.media[activeMediaIndex] || project.media[0];
-  const categoryLabel = labels.categories[project.category] ?? project.category;
-  const hasMultipleMedia = project.media && project.media.length > 1;
+  const onTouchStart = (e: ReactTouchEvent) => {
+    const t = e.changedTouches[0];
+    touchStartX.current = t.clientX;
+    touchStartY.current = t.clientY;
+  };
+
+  const onTouchEnd = (e: ReactTouchEvent) => {
+    if (touchStartX.current == null || touchStartY.current == null) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartX.current;
+    const dy = t.clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    // Prefer horizontal swipe; ignore mostly-vertical scrolls
+    if (Math.abs(dx) < SWIPE_THRESHOLD_PX || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) goNextMedia();
+    else goPrevMedia();
+  };
 
   return (
     <>
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-24 bg-[#0a0a0a]/20 backdrop-blur-md"
+        className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 lg:p-6 xl:p-8 bg-[#0a0a0a]/20 backdrop-blur-md"
         onClick={onClose}
         role="dialog"
         aria-modal="true"
         aria-labelledby={`modal-${project.slug}-title`}
       >
-        {/* Navigation Controls (Desktop Overlay - Placed OUTSIDE the modal on the backdrop) */}
+        {/* Navigation Controls (Desktop Overlay - project level) */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             onPrev();
           }}
           aria-label="Previous Project"
-          className="hidden md:flex absolute top-1/2 left-6 lg:left-10 -translate-y-1/2 z-50 w-14 h-14 items-center justify-center rounded-full bg-canvas/90 backdrop-blur-sm border border-[#e5e5e5] text-body hover:text-[#0a0a0a] hover:bg-surface-soft hover:scale-110 shadow-lg transition-all duration-300"
+          className="hidden lg:flex absolute top-1/2 left-3 xl:left-6 -translate-y-1/2 z-50 w-14 h-14 items-center justify-center rounded-full bg-canvas/90 backdrop-blur-sm border border-[#e5e5e5] text-body hover:text-[#0a0a0a] hover:bg-surface-soft hover:scale-110 shadow-lg transition-all duration-300"
         >
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -419,7 +670,7 @@ function ProjectModal({
             onNext();
           }}
           aria-label="Next Project"
-          className="hidden md:flex absolute top-1/2 right-6 lg:right-10 -translate-y-1/2 z-50 w-14 h-14 items-center justify-center rounded-full bg-canvas/90 backdrop-blur-sm border border-[#e5e5e5] text-body hover:text-[#0a0a0a] hover:bg-surface-soft hover:scale-110 shadow-lg transition-all duration-300"
+          className="hidden lg:flex absolute top-1/2 right-3 xl:right-6 -translate-y-1/2 z-50 w-14 h-14 items-center justify-center rounded-full bg-canvas/90 backdrop-blur-sm border border-[#e5e5e5] text-body hover:text-[#0a0a0a] hover:bg-surface-soft hover:scale-110 shadow-lg transition-all duration-300"
         >
           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -427,16 +678,16 @@ function ProjectModal({
           </svg>
         </button>
 
-        {/* Modal Container */}
+        {/* Modal Container — vertical until lg; wider on desktop */}
         <div
-          className="relative w-full max-w-7xl h-full md:h-[80vh] md:max-h-230 bg-canvas rounded-none md:rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row border-0 md:border md:border-[#e5e5e5]"
+          className="relative w-full h-full max-w-none sm:max-w-3xl sm:h-[90vh] sm:max-h-[900px] lg:max-w-[min(1680px,94vw)] lg:h-[85vh] lg:max-h-[920px] bg-canvas rounded-none sm:rounded-2xl overflow-hidden shadow-2xl flex flex-col lg:flex-row border-0 sm:border sm:border-[#e5e5e5]"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close Button (Absolute Top Right) */}
+          {/* Close Button */}
           <button
             onClick={onClose}
             aria-label={labels.closeModal}
-            className="absolute top-4 right-4 md:top-6 md:right-6 z-30 w-12 h-12 flex items-center justify-center rounded-full bg-surface-soft/90 backdrop-blur-sm border border-[#e5e5e5] text-[#0a0a0a] hover:bg-surface-card hover:scale-105 transition-all duration-300 group"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 lg:top-6 lg:right-6 z-40 w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-surface-soft/90 backdrop-blur-sm border border-[#e5e5e5] text-[#0a0a0a] hover:bg-surface-card hover:scale-105 transition-all duration-300 group"
           >
             <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -444,79 +695,153 @@ function ProjectModal({
             </svg>
           </button>
 
-          {/* Left Side: Media Gallery (2/3 width on desktop) */}
-          <div className="w-full md:w-2/3 h-[50vh] md:h-full flex flex-col bg-surface-strong relative border-b md:border-b-0 md:border-r border-[#e5e5e5] select-none group">
-            {/* Main Featured Image/Video Container */}
-            <div className="grow relative overflow-hidden bg-surface-strong media-container">
+          {/* Media Gallery */}
+          <div className="w-full lg:w-2/3 h-[50vh] sm:h-[48%] lg:h-full flex flex-col bg-surface-strong relative border-b lg:border-b-0 lg:border-r border-[#e5e5e5] select-none shrink-0">
+            <div
+              className="grow relative overflow-hidden bg-surface-strong media-container touch-pan-y"
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+            >
               {activeMedia ? (
                 <ProjectMediaItem
                   url={activeMedia.url}
                   type={activeMedia.type as "image" | "video"}
                   alt={activeMedia.alt || project.title}
-                  onZoom={() => setIsZoomed(true)}
                 />
               ) : (
                 <div className="w-full h-full bg-surface-strong" />
               )}
 
-              {/* View Fullscreen / Expand Hint */}
-              {activeMedia && activeMedia.type === "image" && (
-                <button
-                  onClick={() => setIsZoomed(true)}
-                  className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/10 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer text-white"
-                >
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-                  </svg>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-white/90">Expand</span>
-                </button>
+              {/* Tap zones (IG-style) — mobile first, desktop too */}
+              {hasMultipleMedia && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Previous media"
+                    className="absolute inset-y-0 left-0 z-10 w-1/3 cursor-w-resize bg-transparent border-0 p-0"
+                    onClick={goPrevMedia}
+                  />
+                  <button
+                    type="button"
+                    aria-label="Next media"
+                    className="absolute inset-y-0 right-0 z-10 w-1/3 cursor-e-resize bg-transparent border-0 p-0"
+                    onClick={goNextMedia}
+                  />
+                </>
               )}
+
+              {/* Stories progress + controls (mobile first, always visible) */}
+              <div className="absolute inset-x-0 top-0 z-20 flex flex-col gap-2 p-2.5 sm:p-3 pr-14 sm:pr-16 pointer-events-none">
+                {hasMultipleMedia && (
+                  <div
+                    className="flex w-full gap-1"
+                    role="group"
+                    aria-label="Media progress"
+                  >
+                    {media.map((item, i) => {
+                      const fill =
+                        i < activeMediaIndex
+                          ? 1
+                          : i > activeMediaIndex
+                            ? 0
+                            : storyProgress;
+                      return (
+                        <div
+                          key={`${item.url}-${i}`}
+                          className="story-progress-track h-[3px] sm:h-1 flex-1 min-w-0 rounded-full bg-white/35 overflow-hidden"
+                        >
+                          <div
+                            className="h-full bg-white rounded-full"
+                            style={{
+                              width: `${fill * 100}%`,
+                              transition:
+                                i === activeMediaIndex
+                                  ? "none"
+                                  : "width 120ms linear",
+                            }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 pointer-events-auto">
+                  {hasMultipleMedia && (
+                    <button
+                      type="button"
+                      onClick={() => setIsPaused((p) => !p)}
+                      aria-label={
+                        isPaused
+                          ? (labels.playSlideshow ?? "Play")
+                          : (labels.pauseSlideshow ?? "Pause")
+                      }
+                      aria-pressed={isPaused}
+                      className="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-white hover:bg-black/60 transition-colors"
+                    >
+                      {isPaused ? (
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                          <polygon points="6 4 20 12 6 20 6 4" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                          <rect x="6" y="4" width="4" height="16" rx="1" />
+                          <rect x="14" y="4" width="4" height="16" rx="1" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
+
+                  {activeMedia?.type === "image" && (
+                    <button
+                      type="button"
+                      onClick={() => setIsZoomed(true)}
+                      aria-label={labels.expandImage ?? "Expand image"}
+                      className="inline-flex h-9 sm:h-10 items-center gap-1.5 px-3 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-white hover:bg-black/60 transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                      </svg>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider">
+                        {labels.expandImage ?? "Expand"}
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* Thumbnail Strip */}
+            {/* Thumbnail strip — real <img> so referrerPolicy applies */}
             {hasMultipleMedia && (
-              <div className="h-24 md:h-32 bg-surface-soft flex items-center px-4 overflow-x-auto border-t border-[#e5e5e5] gap-3 shrink-0 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                {project.media.map((mediaItem, idx) => (
+              <div className="h-20 sm:h-24 lg:h-28 bg-surface-soft flex items-center px-3 sm:px-4 overflow-x-auto border-t border-[#e5e5e5] gap-2 sm:gap-3 shrink-0 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                {media.map((mediaItem, idx) => (
                   <button
-                    key={idx}
-                    onClick={() => setActiveMediaIndex(idx)}
-                    className={`relative w-20 md:w-28 h-14 md:h-20 shrink-0 rounded-lg overflow-hidden border border-[#e5e5e5] transition-all duration-300 ${
+                    key={`${mediaItem.url}-${idx}`}
+                    type="button"
+                    onClick={() => goToMedia(idx)}
+                    aria-label={mediaItem.alt || `Media ${idx + 1}`}
+                    aria-current={activeMediaIndex === idx ? "true" : undefined}
+                    className={`relative w-16 sm:w-20 lg:w-28 h-12 sm:h-14 lg:h-20 shrink-0 rounded-lg overflow-hidden border border-[#e5e5e5] transition-all duration-300 ${
                       activeMediaIndex === idx
                         ? "ring-2 ring-brand-pink ring-offset-2 ring-offset-canvas opacity-100 scale-95"
                         : "opacity-50 hover:opacity-100"
                     }`}
                   >
-                    {mediaItem.type === "video" ? (
-                      <video
-                        src={mediaItem.url}
-                        className="w-full h-full object-cover pointer-events-none"
-                        muted
-                        playsInline
-                        preload="metadata"
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full bg-cover bg-center"
-                        style={{ backgroundImage: `url(${mediaItem.url})` }}
-                      />
-                    )}
-                    {mediaItem.type === "video" && (
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                          <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                        </svg>
-                      </div>
-                    )}
+                    <MediaThumb
+                      url={mediaItem.url}
+                      type={mediaItem.type as "image" | "video"}
+                      alt={mediaItem.alt || project.title}
+                    />
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Right Side: Project Details (1/3 width on desktop) */}
-          <div className="w-full md:w-1/3 h-[50vh] md:h-full overflow-y-auto bg-canvas flex flex-col scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden relative select-text">
+          {/* Project Details — stacked until lg; 1/3 on desktop */}
+          <div className="w-full lg:w-1/3 min-h-0 flex-1 lg:h-full overflow-y-auto bg-canvas flex flex-col scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden relative select-text">
             {/* Content Padding Wrapper */}
-            <div className="p-6 md:p-10 flex flex-col gap-6 grow pb-24 md:pb-10">
+            <div className="p-6 lg:p-10 flex flex-col gap-6 grow pb-24 lg:pb-10">
               {/* Header Info */}
               <header className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
@@ -537,7 +862,7 @@ function ProjectModal({
                 </div>
                 <h1
                   id={`modal-${project.slug}-title`}
-                  className="text-2xl md:text-3xl font-bold tracking-tight text-[#0a0a0a] mt-1"
+                  className="text-2xl lg:text-3xl font-bold tracking-tight text-[#0a0a0a] mt-1"
                 >
                   {project.title}
                 </h1>
@@ -594,8 +919,8 @@ function ProjectModal({
               )}
             </div>
 
-            {/* Sticky Bottom Actions on Mobile (hidden on desktop) */}
-            <div className="fixed md:hidden bottom-0 left-0 right-0 p-4 bg-canvas/95 backdrop-blur-md border-t border-[#e5e5e5] flex gap-3 z-30">
+            {/* Sticky Bottom Actions (mobile + tablet; hidden on desktop) */}
+            <div className="sticky lg:hidden bottom-0 left-0 right-0 p-4 bg-canvas/95 backdrop-blur-md border-t border-[#e5e5e5] flex gap-3 z-30 mt-auto">
               <button
                 onClick={onPrev}
                 className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded border border-[#e5e5e5] text-[14px] font-medium text-[#0a0a0a] hover:bg-surface-soft active:bg-surface-card transition-all"
@@ -618,9 +943,9 @@ function ProjectModal({
               </button>
             </div>
 
-            {/* External Links Sticky Footer (Desktop/General) */}
+            {/* External Links Sticky Footer (Desktop) */}
             {project.externalLinks && project.externalLinks.length > 0 && (
-              <div className="hidden md:flex p-6 border-t border-[#e5e5e5] mt-auto w-full items-center justify-between bg-canvas/85 backdrop-blur-sm sticky bottom-0">
+              <div className="hidden lg:flex p-6 border-t border-[#e5e5e5] mt-auto w-full items-center justify-between bg-canvas/85 backdrop-blur-sm sticky bottom-0">
                 {project.externalLinks.map((link) => (
                   <a
                     key={link.url}

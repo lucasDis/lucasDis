@@ -347,7 +347,9 @@ body {
   background: transparent;
   border: 0;
   padding: 0;
-  cursor: pointer;
+  position: relative;
+  /* Allow description overlay to paint over title without clipping */
+  overflow: visible;
   transition: transform 220ms ease;
 }
 
@@ -355,7 +357,19 @@ body {
   transform: translateY(-4px);
 }
 
-.project-card-preview:focus-visible {
+/* Expanded card stacks above siblings so the upward overlay is readable */
+.project-card-preview.is-expanded {
+  z-index: 8;
+}
+
+.project-card-desc-overlay {
+  /* Grow upward from the reserved 2-line slot (parent is only ~2 lines tall —
+     do NOT use % max-height; that would clamp against that tiny box). */
+  max-height: min(40vh, 14rem);
+  overflow-y: auto;
+}
+
+.project-card-preview button:focus-visible {
   outline: 2px solid var(--color-brand-pink);
   outline-offset: 4px;
   border-radius: var(--radius-md);
@@ -583,6 +597,21 @@ html::-webkit-scrollbar {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* Project modal stage: always show the full media (no crop) */
+.media-container .media-renderer-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+.media-container .media-renderer-img,
+.media-container .media-renderer-video {
+  object-fit: contain;
+  object-position: center;
 }
 
 .media-renderer-iframe {

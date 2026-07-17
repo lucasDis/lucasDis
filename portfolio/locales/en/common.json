@@ -48,7 +48,12 @@
       "ongoing": "In progress"
     },
     "search_placeholder": "Search by title, tools, role...",
-    "all_years": "All years"
+    "all_years": "All years",
+    "read_more": "Read more",
+    "show_less": "Show less",
+    "pause_slideshow": "Pause",
+    "play_slideshow": "Play",
+    "expand_image": "Expand"
   },
   "about": {
     "eyebrow": "About me",

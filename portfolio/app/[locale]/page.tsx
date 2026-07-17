@@ -155,6 +155,11 @@ export default async function Home({ params }: Props) {
             statusOngoing: t("projects.status.ongoing"),
             searchPlaceholder: t("projects.search_placeholder"),
             allYears: t("projects.all_years"),
+            readMore: t("projects.read_more"),
+            showLess: t("projects.show_less"),
+            pauseSlideshow: t("projects.pause_slideshow"),
+            playSlideshow: t("projects.play_slideshow"),
+            expandImage: t("projects.expand_image"),
           }}
         />
 
