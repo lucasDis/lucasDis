@@ -42,6 +42,7 @@ export default async function HabilidadesPage({ searchParams }: PageProps) {
     name: s.name,
     group: s.group,
     order: s.order,
+    yearsOfExperience: s.yearsOfExperience,
   }));
 
   return (

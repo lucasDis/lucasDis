@@ -41,6 +41,7 @@ export default async function EditarHabilidadPage({ params }: PageProps) {
           name: skill.name,
           group: skill.group,
           order: skill.order,
+          yearsOfExperience: skill.yearsOfExperience,
         }}
       />
     </div>

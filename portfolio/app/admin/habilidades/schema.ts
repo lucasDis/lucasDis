@@ -22,6 +22,11 @@ export const skillSchema = z.object({
     .int({ error: "Orden inválido" })
     .min(0, { error: "Orden inválido" })
     .default(0),
+  yearsOfExperience: z.coerce
+    .number({ error: "Valor inválido" })
+    .int({ error: "Debe ser un número entero" })
+    .min(0, { error: "No puede ser negativo" })
+    .optional(),
 });
 
 // Form input type — strings before Zod coerces them. Drives `useForm`.

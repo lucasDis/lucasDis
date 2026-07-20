@@ -45,6 +45,7 @@ export function SkillForm({
       name: initial?.name ?? "",
       group: (initial?.group ?? "web") as SkillFormValues["group"],
       order: initial?.order ?? 0,
+      yearsOfExperience: initial?.yearsOfExperience ?? undefined,
     },
     mode: "onBlur",
   });
@@ -89,7 +90,7 @@ export function SkillForm({
         />
       </Field>
 
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-5 md:grid-cols-3">
         <Field label="Grupo" error={errors.group?.message}>
           <select {...register("group")} className={inputClass}>
             {GROUPS.map((g) => (
@@ -98,6 +99,15 @@ export function SkillForm({
               </option>
             ))}
           </select>
+        </Field>
+        <Field label="Años de experiencia" error={errors.yearsOfExperience?.message} hint="Opcional.">
+          <input
+            type="number"
+            {...register("yearsOfExperience")}
+            className={inputClass}
+            min={0}
+            placeholder="0"
+          />
         </Field>
         <Field label="Orden" error={errors.order?.message} hint="Si queda en 0, se calcula al final.">
           <input

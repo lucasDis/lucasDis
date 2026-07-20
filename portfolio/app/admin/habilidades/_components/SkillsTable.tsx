@@ -16,6 +16,7 @@ type Row = {
   name: string;
   group: string;
   order: number;
+  yearsOfExperience?: number;
 };
 
 export function SkillsTable({ rows }: { rows: Row[] }) {
@@ -52,6 +53,7 @@ export function SkillsTable({ rows }: { rows: Row[] }) {
           <tr>
             <th className="px-4 py-3 text-left">Nombre</th>
             <th className="px-4 py-3 text-left">Grupo</th>
+            <th className="px-4 py-3 text-left">Años exp.</th>
             <th className="px-4 py-3 text-left">Orden</th>
             <th className="px-4 py-3 text-center">Mover</th>
             <th className="px-4 py-3 text-right">Acciones</th>
@@ -66,6 +68,9 @@ export function SkillsTable({ rows }: { rows: Row[] }) {
               <td className="px-4 py-3 font-medium text-ink">{row.name}</td>
               <td className="px-4 py-3 text-body-sm text-body">
                 {GROUP_LABEL[row.group] ?? row.group}
+              </td>
+              <td className="px-4 py-3 text-body-sm text-body">
+                {row.yearsOfExperience != null ? `${row.yearsOfExperience} años` : “—”}
               </td>
               <td className="px-4 py-3 text-body-sm text-body">{row.order}</td>
               <td className="px-4 py-3">

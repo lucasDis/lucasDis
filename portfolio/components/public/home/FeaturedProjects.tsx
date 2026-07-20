@@ -359,12 +359,10 @@ function ProjectCardPreview({
               <span>{categoryLabel}</span>
               <span>
                 {project.year}
-                {project.status && (
+                {project.status === "ongoing" && (
                   <>
                     {" • "}
-                    {project.status === "ongoing"
-                      ? (labels.statusOngoing ?? "En curso")
-                      : (labels.statusCompleted ?? "Terminado")}
+                    {labels.statusOngoing ?? "En curso"}
                   </>
                 )}
               </span>
@@ -896,12 +894,10 @@ function ProjectModal({
                   </span>
                   <span className="text-[12px] font-semibold text-[#888888]">
                     {project.year}
-                    {project.status && (
+                    {project.status === "ongoing" && (
                       <>
                         {" • "}
-                        {project.status === "ongoing"
-                          ? (labels.statusOngoing ?? "En curso")
-                          : (labels.statusCompleted ?? "Terminado")}
+                        {labels.statusOngoing ?? "En curso"}
                       </>
                     )}
                   </span>
