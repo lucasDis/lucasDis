@@ -169,15 +169,19 @@ body {
 
 /* Restore pointer cursor hint inside the custom cursor JS (not needed — CSS handles display) */
 
-/* ─────────────────── OUTLINED BUTTON HOVER — fill + black text ─────────────────── */
-/* Matches navbar Contactar (data-cursor-outlined) and any other outlined button */
-[data-cursor-outlined] {
-  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
-}
-[data-cursor-outlined]:hover {
+/* ─────────────────── OUTLINED BUTTON HOVER — fill on hover ─────────────────── */
+/* Default (light/hero header) — fills white with black text */
+header:not([data-header-dark]) [data-cursor-outlined]:hover {
   background-color: #ffffff !important;
   color: #0a0a0a !important;
   border-color: #ffffff !important;
+}
+
+/* Dark variant (dynamic project pages) — fills black (#0a0a0a) with white text */
+header[data-header-dark] [data-cursor-outlined]:hover {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+  border-color: #0a0a0a !important;
 }
 
 /* ─────────────────── BUTTON RADIUS — unified ─────────────────── */

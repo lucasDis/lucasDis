@@ -93,7 +93,7 @@ export function Resume({ locale, labels }: ResumeProps) {
         >
           {/* Modal Container */}
           <div
-            className="relative w-full max-w-4xl h-full md:h-[80vh] md:max-h-205 bg-canvas rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-[#e5e5e5]"
+            className="relative w-full max-w-6xl h-full md:h-[88vh] md:max-h-225 bg-canvas rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-[#e5e5e5]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header (Compact single-line with centered tabs & side buttons) */}

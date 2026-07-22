@@ -3,10 +3,12 @@
  * All elements centered: Title, Form, and Cards.
  *
  * Cards layout:
- *   - Mobile: vertical column.
- *   - Desktop (lg): horizontal row below the form, matching the form width (max-w-2xl).
- *   - Info cards: Email, Phone, Location.
- *   - Social cards: LinkedIn & GitHub as strictly square cards (aspect-square), icon-only in brand-pink.
+ *   - All cards below the form are icon-only square cards (aspect-square, w-20 h-20).
+ *   - Email: Envelope icon (sobre)
+ *   - Phone: WhatsApp icon
+ *   - Location: Map pin icon
+ *   - LinkedIn: LinkedIn icon
+ *   - GitHub: GitHub icon
  *
  * Server component.
  */
@@ -36,31 +38,21 @@ function normalizeUrl(url: string | undefined): string | null {
   return `https://${trimmed}`;
 }
 
-function EmailIcon() {
+// ── Icons ──────────────────────────────────────────────────────────────────
+function EnvelopeIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M3 7l9 6 9-6M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9-4 9 4"
-        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+      <polyline points="22,6 12,13 2,6" />
     </svg>
   );
 }
 
-function PhoneIcon() {
+function WhatsAppIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.86 19.86 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.86 19.86 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"
-        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function LocationIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"
-        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="12" cy="10" r="3"
-        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347z" />
+      <path d="M12 2C6.477 2 2 6.477 2 12c0 1.891.524 3.66 1.436 5.179L2 22l4.957-1.399A9.957 9.957 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.606 0-3.104-.442-4.388-1.211l-.315-.189-2.929.827.842-2.857-.207-.328A7.954 7.954 0 0 1 4 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z" />
     </svg>
   );
 }
@@ -81,12 +73,11 @@ function GitHubIcon() {
   );
 }
 
-export function Contact({ profile, t }: ContactProps) {
-  const linkedinUrl = normalizeUrl(profile.linkedin);
-  const githubUrl   = normalizeUrl(profile.github);
-  const phoneHref   = profile.phone
-    ? `tel:${profile.phone.replace(/[^\d+]/g, "")}`
-    : null;
+export function Contact({ profile }: ContactProps) {
+  const linkedinUrl = normalizeUrl(profile?.linkedin);
+  const githubUrl   = normalizeUrl(profile?.github);
+  const phoneClean  = profile?.phone ? profile.phone.replace(/[^\d+]/g, "") : null;
+  const whatsappUrl = phoneClean ? `https://wa.me/${phoneClean.replace(/\+/g, "")}` : null;
 
   return (
     <section
@@ -109,89 +100,59 @@ export function Contact({ profile, t }: ContactProps) {
           <ContactForm />
         </div>
 
-        {/* Cards — Vertical on mobile, Horizontal row on desktop (lg) matching form width (max-w-5xl) */}
-        <div className="mt-8 w-full max-w-5xl flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-4">
+        {/* Square Cards Row — All contact options as icon-only square cards in brand-pink */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
 
-          {/* Email card — flex-[1.25] for extra width so long email addresses never get truncated */}
+          {/* Email card — Envelope icon */}
           <a
             href={`mailto:${profile.email}`}
-            className="group flex-[1.25] flex items-center gap-3.5 h-20 rounded-2xl border border-hairline bg-surface-card px-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-pink hover:shadow-md text-left min-w-0"
+            title={`Email: ${profile.email}`}
+            aria-label={`Email: ${profile.email}`}
+            className="flex items-center justify-center w-20 h-20 aspect-square rounded-2xl border border-hairline bg-surface-card text-brand-pink transition-all duration-200 hover:-translate-y-1 hover:border-brand-pink hover:shadow-md shrink-0"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pink/10 text-brand-pink">
-              <EmailIcon />
-            </span>
-            <span className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">
-                {t("contact.email")}
-              </span>
-              <span className="text-[12px] xl:text-[13px] font-medium text-ink group-hover:text-brand-pink transition-colors break-all">
-                {profile.email}
-              </span>
-            </span>
+            <EnvelopeIcon />
           </a>
 
-          {/* Phone card */}
-          {profile.phone && (
+          {/* Phone / WhatsApp card — WhatsApp icon */}
+          {whatsappUrl && (
             <a
-              href={phoneHref ?? "#"}
-              className="group flex-1 flex items-center gap-3.5 h-20 rounded-2xl border border-hairline bg-surface-card px-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-pink hover:shadow-md text-left min-w-0"
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              title={`WhatsApp: ${profile.phone}`}
+              aria-label={`WhatsApp: ${profile.phone}`}
+              className="flex items-center justify-center w-20 h-20 aspect-square rounded-2xl border border-hairline bg-surface-card text-brand-pink transition-all duration-200 hover:-translate-y-1 hover:border-brand-pink hover:shadow-md shrink-0"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pink/10 text-brand-pink">
-                <PhoneIcon />
-              </span>
-              <span className="flex flex-col gap-0.5 min-w-0">
-                <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">
-                  {t("contact.phone")}
-                </span>
-                <span className="text-[13px] font-medium text-ink group-hover:text-brand-pink transition-colors truncate">
-                  {profile.phone}
-                </span>
-              </span>
+              <WhatsAppIcon />
             </a>
           )}
 
-          {/* Location card */}
-          <div className="flex-1 flex items-center gap-3.5 h-20 rounded-2xl border border-hairline bg-surface-card px-4 text-left min-w-0">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pink/10 text-brand-pink">
-              <LocationIcon />
-            </span>
-            <span className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-muted">
-                {t("contact.location_label")}
-              </span>
-              <span className="text-[13px] font-medium text-ink truncate">
-                {profile.location}
-              </span>
-            </span>
-          </div>
+          {/* LinkedIn card */}
+          {linkedinUrl && (
+            <a
+              href={linkedinUrl}
+              target="_blank"
+              rel="noreferrer"
+              title="LinkedIn"
+              aria-label="LinkedIn"
+              className="flex items-center justify-center w-20 h-20 aspect-square rounded-2xl border border-hairline bg-surface-card text-brand-pink transition-all duration-200 hover:-translate-y-1 hover:border-brand-pink hover:shadow-md shrink-0"
+            >
+              <LinkedInIcon />
+            </a>
+          )}
 
-          {/* Social square cards — LinkedIn & GitHub (strictly square h-20 w-20 aspect-square) */}
-          {(linkedinUrl || githubUrl) && (
-            <div className="flex items-center justify-center gap-4 shrink-0">
-              {linkedinUrl && (
-                <a
-                  href={linkedinUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="LinkedIn"
-                  className="flex items-center justify-center w-20 h-20 aspect-square rounded-2xl border border-hairline bg-surface-card text-brand-pink transition-all duration-200 hover:-translate-y-1 hover:border-brand-pink hover:shadow-md shrink-0"
-                >
-                  <LinkedInIcon />
-                </a>
-              )}
-
-              {githubUrl && (
-                <a
-                  href={githubUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="GitHub"
-                  className="flex items-center justify-center w-20 h-20 aspect-square rounded-2xl border border-hairline bg-surface-card text-brand-pink transition-all duration-200 hover:-translate-y-1 hover:border-brand-pink hover:shadow-md shrink-0"
-                >
-                  <GitHubIcon />
-                </a>
-              )}
-            </div>
+          {/* GitHub card */}
+          {githubUrl && (
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              title="GitHub"
+              aria-label="GitHub"
+              className="flex items-center justify-center w-20 h-20 aspect-square rounded-2xl border border-hairline bg-surface-card text-brand-pink transition-all duration-200 hover:-translate-y-1 hover:border-brand-pink hover:shadow-md shrink-0"
+            >
+              <GitHubIcon />
+            </a>
           )}
         </div>
       </div>

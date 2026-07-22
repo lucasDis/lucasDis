@@ -89,6 +89,8 @@ export default async function ProjectSlugPage({ params }: Props) {
     <>
       <SiteHeader
         locale={resolvedLocale}
+        variant="dark"
+        position="relative"
         labels={{
           projects: t("nav.projects"),
           about: t("nav.about"),

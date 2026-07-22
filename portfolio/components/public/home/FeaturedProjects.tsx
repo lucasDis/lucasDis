@@ -14,6 +14,7 @@
  * on filter chips, aria-label on close button, navigation with Arrow keys.
  */
 
+import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -84,6 +85,7 @@ interface FeaturedProjectsProps {
   showViewAll?: boolean;
   viewAllHref?: string;
   featuredOnly?: boolean;
+  locale?: string;
 }
 
 const FILTER_CATEGORIES = PROJECT_FILTER_CATEGORIES;
@@ -94,6 +96,7 @@ export function FeaturedProjects({
   showViewAll = false,
   viewAllHref,
   featuredOnly = false,
+  locale = "es",
 }: FeaturedProjectsProps) {
   const [filter, setFilter] = useState<string>("all");
   const [search, setSearch] = useState<string>("");
@@ -261,7 +264,7 @@ export function FeaturedProjects({
                   key={project._id}
                   project={project}
                   onOpen={() => openModal(project)}
-                  openDetailsLabel={labels.openDetailsTemplate.replace("{{title}}", project.title)}
+                  openDetailsLabel={labels.openDetailsTemplate ? labels.openDetailsTemplate.replace("{{title}}", project.title) : `Ver detalles de ${project.title}`}
                   categoryLabel={labels.categories[project.category] ?? project.category}
                   labels={labels}
                 />
@@ -1049,7 +1052,13 @@ function ProjectModal({
 
 interface FeaturedProjectsListProps {
   projects: FeaturedProject[];
-  labels: Pick<FeaturedProjectsLabels, "viewAll" | "eyebrow" | "title" | "categories">;
+  labels: {
+    eyebrow: string;
+    title: string;
+    categories: Record<string, string>;
+    viewAll?: string;
+    openDetailsTemplate?: string;
+  };
   viewAllHref?: string;
   locale: string;
 }
@@ -1138,7 +1147,7 @@ export function FeaturedProjectsList({
         Ver
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 pt-16 pb-4 lg:pt-20">
+      <div className="mx-auto max-w-7xl px-6 pt-8 pb-4 lg:pt-12">
         <SectionHeader
           eyebrow={labels.eyebrow}
           title={labels.title}

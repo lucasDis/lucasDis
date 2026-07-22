@@ -8,13 +8,13 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 /**
- * SiteHeader — transparent, floats over hero.
+ * SiteHeader — top navigation.
  *
- * Left  : "Contactar" — white outlined button
- * Right : GitHub (white) · LinkedIn (white) · Hamburger (white lines)
- *
- * No background, no border, no blur — completely transparent.
- * The hero behind provides context.
+ * Supports two visual variants & positioning modes:
+ *   - variant="light" (default) : white text, white icons, white button (for dark shader hero)
+ *   - variant="dark"            : dark text, dark icons, dark button (for light canvas pages like project details)
+ *   - position="absolute" (default) : floats over hero
+ *   - position="relative"           : sits in document flow to prevent layout overlap
  */
 
 interface SiteHeaderProps {
@@ -29,9 +29,18 @@ interface SiteHeaderProps {
   };
   github?: string;
   linkedin?: string;
+  variant?: "light" | "dark";
+  position?: "absolute" | "relative";
 }
 
-export function SiteHeader({ locale, labels, github, linkedin }: SiteHeaderProps) {
+export function SiteHeader({
+  locale,
+  labels,
+  github,
+  linkedin,
+  variant = "light",
+  position = "absolute",
+}: SiteHeaderProps) {
   const base = `/${locale}`;
   const [isOpen, setIsOpen] = useState(false);
 
@@ -66,12 +75,36 @@ export function SiteHeader({ locale, labels, github, linkedin }: SiteHeaderProps
   const githubUrl  = github   ?? "https://github.com/lucasruizdiaz";
   const linkedinUrl = linkedin ?? "https://linkedin.com/in/lucasruizdiaz";
 
+  const isDarkVariant = variant === "dark";
+
+  // Variant color classes
+  const btnClass = isDarkVariant
+    ? "border border-ink/80 text-ink hover:border-ink hover:bg-ink hover:text-canvas"
+    : "border border-white/70 text-white/90 hover:border-white hover:text-white hover:bg-white/10";
+
+  const iconClass = isDarkVariant
+    ? "text-ink/80 hover:text-ink hover:bg-ink/5"
+    : "text-white/80 hover:text-white hover:bg-white/10";
+
+  const burgerBtnClass = isDarkVariant
+    ? "hover:bg-ink/5 focus-visible:outline-ink/50"
+    : "hover:bg-white/10 focus-visible:outline-white/50";
+
+  const burgerLineClass = isDarkVariant ? "bg-ink" : "bg-white";
+
   return (
     <>
-      <header className={cn("absolute top-0 left-0 right-0 z-40 w-full bg-transparent")}>
+      <header
+        data-header-dark={isDarkVariant ? "true" : undefined}
+        className={cn(
+          position === "relative"
+            ? "relative z-40 w-full bg-transparent"
+            : "absolute top-0 left-0 right-0 z-40 w-full bg-transparent"
+        )}
+      >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
 
-          {/* LEFT — Contactar (white outlined) */}
+          {/* LEFT — Contactar CTA */}
           <AnimatePresence>
             {!isOpen && (
               <motion.div
@@ -85,7 +118,10 @@ export function SiteHeader({ locale, labels, github, linkedin }: SiteHeaderProps
                   href={`${base}/#contacto`}
                   data-cursor-outlined
                   data-magnetic
-                  className="inline-flex h-9 items-center justify-center px-4 rounded-md text-[13px] font-semibold border border-white/70 text-white/90 hover:border-white hover:text-white hover:bg-white/10 transition-all duration-200"
+                  className={cn(
+                    "inline-flex h-9 items-center justify-center px-4 rounded-md text-[13px] font-semibold transition-all duration-200",
+                    btnClass
+                  )}
                 >
                   {labels.hire}
                 </Link>
@@ -95,7 +131,7 @@ export function SiteHeader({ locale, labels, github, linkedin }: SiteHeaderProps
 
           {isOpen && <div />}
 
-          {/* RIGHT — GitHub · LinkedIn · Hamburger (all white) */}
+          {/* RIGHT — GitHub · LinkedIn · Hamburger */}
           <div className="flex items-center gap-1">
 
             {/* GitHub */}
@@ -105,7 +141,10 @@ export function SiteHeader({ locale, labels, github, linkedin }: SiteHeaderProps
               rel="noopener noreferrer"
               aria-label="GitHub"
               data-magnetic
-              className="flex items-center justify-center w-9 h-9 rounded-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              className={cn(
+                "flex items-center justify-center w-9 h-9 rounded-sm transition-colors",
+                iconClass
+              )}
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden>
                 <path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.021C22 6.484 17.522 2 12 2z" />
@@ -119,14 +158,17 @@ export function SiteHeader({ locale, labels, github, linkedin }: SiteHeaderProps
               rel="noopener noreferrer"
               aria-label="LinkedIn"
               data-magnetic
-              className="flex items-center justify-center w-9 h-9 rounded-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              className={cn(
+                "flex items-center justify-center w-9 h-9 rounded-sm transition-colors",
+                iconClass
+              )}
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden>
                 <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zm-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79zM6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68zm1.39 9.94v-8.37H5.5v8.37h2.77z" />
               </svg>
             </a>
 
-            {/* Hamburger — white lines */}
+            {/* Hamburger */}
             <button
               type="button"
               aria-label={isOpen ? "Close menu" : "Open menu"}
@@ -134,20 +176,23 @@ export function SiteHeader({ locale, labels, github, linkedin }: SiteHeaderProps
               aria-controls="nav-menu"
               data-magnetic
               onClick={() => setIsOpen((v) => !v)}
-              className="flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-sm hover:bg-white/10 transition-colors focus-visible:outline-2 focus-visible:outline-white/50 ml-1"
+              className={cn(
+                "flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-sm transition-colors focus-visible:outline-2 ml-1",
+                burgerBtnClass
+              )}
             >
               <motion.span
-                className="block h-px w-5 bg-white origin-center"
+                className={cn("block h-px w-5 origin-center", burgerLineClass)}
                 animate={isOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
                 transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
               />
               <motion.span
-                className="block h-px w-5 bg-white"
+                className={cn("block h-px w-5", burgerLineClass)}
                 animate={isOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
                 transition={{ duration: 0.15 }}
               />
               <motion.span
-                className="block h-px w-5 bg-white origin-center"
+                className={cn("block h-px w-5 origin-center", burgerLineClass)}
                 animate={isOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
                 transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
               />

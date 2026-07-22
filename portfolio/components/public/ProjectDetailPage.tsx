@@ -6,9 +6,6 @@
  * Reusable client component rendered by `/[locale]/proyectos/[slug]/page.tsx`.
  * Displays the project media gallery (with story-style progress + thumbnail strip),
  * description, tools, client/role meta, and external links.
- *
- * This is the same content as the modal in FeaturedProjects but as a standalone page
- * — no duplication needed per project. One component, loaded by slug.
  */
 
 import {
@@ -58,97 +55,82 @@ function MediaThumb({ url, type, alt }: { url: string; type: "image" | "video"; 
     <img
       src={proxyMediaUrl(url, "image")}
       alt={alt}
-      loading="eager"
-      decoding="async"
       className="absolute inset-0 w-full h-full object-cover pointer-events-none"
     />
   );
 }
 
 export function ProjectDetailPage({ project, labels, locale }: ProjectDetailPageProps) {
-  const media = useMemo(
-    () => [...(project.media ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
-    [project.media]
-  );
-
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
-  const [isZoomed, setIsZoomed] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [storyEpoch, setStoryEpoch] = useState(0);
   const [storyProgress, setStoryProgress] = useState(0);
-  const storyProgressRef = useRef(0);
-  const rafIdRef = useRef(0);
-  const thumbStripRef = useRef<HTMLDivElement>(null);
+  const [storyEpoch, setStoryEpoch] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
+  const rafIdRef = useRef<number>(0);
+  const storyProgressRef = useRef<number>(0);
+  const thumbStripRef = useRef<HTMLDivElement>(null);
 
+  const media = useMemo(() => {
+    if (!project.media || project.media.length === 0) return [];
+    const cover = project.media.find((m) => m.isCover);
+    const rest = project.media.filter((m) => !m.isCover);
+    return cover ? [cover, ...rest] : project.media;
+  }, [project.media]);
+
+  const activeMedia = media[activeMediaIndex] ?? null;
   const hasMultipleMedia = media.length > 1;
-  const activeMedia = media[activeMediaIndex] ?? media[0];
-  const categoryLabel = labels.categories[project.category] ?? project.category;
-  const storyDurationMs =
-    activeMedia?.type === "video" ? STORY_DURATION_VIDEO_MS : STORY_DURATION_IMAGE_MS;
+
+  const categoryLabel =
+    labels.categories[project.category] ?? project.category;
+
+  const goNextMedia = useCallback(() => {
+    if (!hasMultipleMedia) return;
+    setActiveMediaIndex((prev) => (prev + 1) % media.length);
+    storyProgressRef.current = 0;
+    setStoryProgress(0);
+    setStoryEpoch((v) => v + 1);
+  }, [hasMultipleMedia, media.length]);
+
+  const goPrevMedia = useCallback(() => {
+    if (!hasMultipleMedia) return;
+    setActiveMediaIndex((prev) => (prev - 1 + media.length) % media.length);
+    storyProgressRef.current = 0;
+    setStoryProgress(0);
+    setStoryEpoch((v) => v + 1);
+  }, [hasMultipleMedia, media.length]);
 
   const goToMedia = useCallback((index: number) => {
     setActiveMediaIndex(index);
-    setStoryEpoch((e) => e + 1);
-  }, []);
-
-  const goNextMedia = useCallback(() => {
-    if (media.length <= 1) return;
-    setActiveMediaIndex((i) => (i + 1) % media.length);
-    setStoryEpoch((e) => e + 1);
-  }, [media.length]);
-
-  const goPrevMedia = useCallback(() => {
-    if (media.length <= 1) return;
-    setActiveMediaIndex((i) => (i - 1 + media.length) % media.length);
-    setStoryEpoch((e) => e + 1);
-  }, [media.length]);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) setIsPaused(true);
-  }, []);
-
-  useEffect(() => {
     storyProgressRef.current = 0;
     setStoryProgress(0);
-  }, [activeMediaIndex, storyEpoch, storyDurationMs]);
+    setStoryEpoch((v) => v + 1);
+  }, []);
 
   useEffect(() => {
-    const strip = thumbStripRef.current;
-    if (!strip) return;
-    const buttons = strip.querySelectorAll<HTMLButtonElement>("button");
-    const activeBtn = buttons[activeMediaIndex];
-    if (!activeBtn) return;
-    const stripRect = strip.getBoundingClientRect();
-    const btnRect = activeBtn.getBoundingClientRect();
-    const PEEK_PX = 24;
-    const nextBtn = buttons[activeMediaIndex + 1];
-    if (nextBtn) {
-      const nextRect = nextBtn.getBoundingClientRect();
-      const overflowRight = nextRect.right - stripRect.right + PEEK_PX;
-      if (overflowRight > 0) { strip.scrollBy({ left: overflowRight, behavior: "smooth" }); return; }
-    }
-    const prevBtn = buttons[activeMediaIndex - 1];
-    if (prevBtn) {
-      const prevRect = prevBtn.getBoundingClientRect();
-      const overflowLeft = stripRect.left - prevRect.left + PEEK_PX;
-      if (overflowLeft > 0) { strip.scrollBy({ left: -overflowLeft, behavior: "smooth" }); return; }
-    }
-    if (btnRect.left < stripRect.left || btnRect.right > stripRect.right) {
-      activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    const activeThumb = thumbStripRef.current?.children[activeMediaIndex] as HTMLElement | undefined;
+    if (activeThumb && thumbStripRef.current) {
+      activeThumb.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
     }
   }, [activeMediaIndex]);
+
+  const storyDurationMs = useMemo(() => {
+    if (!activeMedia) return STORY_DURATION_IMAGE_MS;
+    return activeMedia.type === "video" ? STORY_DURATION_VIDEO_MS : STORY_DURATION_IMAGE_MS;
+  }, [activeMedia]);
 
   useEffect(() => {
     if (!hasMultipleMedia || isPaused || isZoomed) return;
     let last = performance.now();
-    const duration = Math.max(1, storyDurationMs);
+    storyProgressRef.current = 0;
+    setStoryProgress(0);
+
     const tick = (now: number) => {
       const dt = now - last;
       last = now;
-      const next = Math.min(1, storyProgressRef.current + dt / duration);
+      const next = Math.min(1, storyProgressRef.current + dt / storyDurationMs);
       storyProgressRef.current = next;
       setStoryProgress(next);
       if (next >= 1) { goNextMedia(); return; }
@@ -186,17 +168,30 @@ export function ProjectDetailPage({ project, labels, locale }: ProjectDetailPage
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* Back navigation */}
-      <div className="mx-auto max-w-7xl px-6 pt-8">
+      {/* Top back navigation: Left = Inicio, Right = Proyectos */}
+      <div className="mx-auto max-w-7xl px-6 pt-6 flex items-center justify-between">
+        {/* Left: Inicio */}
         <Link
-          href={`/${locale}/proyectos`}
-          className="inline-flex items-center gap-2 text-body-sm text-body hover:text-ink transition-colors group"
+          href={`/${locale}`}
+          className="inline-flex items-center gap-2 text-[14px] font-medium text-body hover:text-ink transition-colors group"
         >
           <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="19" y1="12" x2="5" y2="12" />
             <polyline points="12 19 5 12 12 5" />
           </svg>
+          Inicio
+        </Link>
+
+        {/* Right: Proyectos */}
+        <Link
+          href={`/${locale}#proyectos`}
+          className="inline-flex items-center gap-2 text-[14px] font-medium text-body hover:text-ink transition-colors group"
+        >
           Proyectos
+          <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
         </Link>
       </div>
 
@@ -218,20 +213,15 @@ export function ProjectDetailPage({ project, labels, locale }: ProjectDetailPage
                     src={activeMedia.url}
                     alt={activeMedia.alt || project.title}
                     type={activeMedia.type as "image" | "video"}
-                    aspectRatio=""
-                    className="w-full h-full"
+                    autoPlay
+                    controls
+                    className="w-full h-full object-cover"
                   />
                 </div>
               ) : (
-                <div className="w-full h-full bg-surface-strong" />
-              )}
-
-              {/* Tap zones */}
-              {hasMultipleMedia && (
-                <>
-                  <button type="button" aria-label="Previous media" className="absolute inset-y-0 left-0 z-10 w-1/3 cursor-w-resize bg-transparent border-0 p-0" onClick={goPrevMedia} />
-                  <button type="button" aria-label="Next media" className="absolute inset-y-0 right-0 z-10 w-1/3 cursor-e-resize bg-transparent border-0 p-0" onClick={goNextMedia} />
-                </>
+                <div className="flex h-full w-full items-center justify-center text-muted">
+                  Sin multimedia
+                </div>
               )}
 
               {/* Story progress + controls */}
@@ -372,23 +362,24 @@ export function ProjectDetailPage({ project, labels, locale }: ProjectDetailPage
               </div>
             )}
 
-            {/* External Links */}
+            {/* External Links — Black circle buttons with white chain/link icon */}
             {project.externalLinks && project.externalLinks.length > 0 && (
-              <div className="flex flex-col gap-2 pt-2">
+              <div className="flex items-center gap-3 pt-4">
                 {project.externalLinks.map((link) => (
                   <a
                     key={link.url}
                     href={link.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 text-[14px] font-medium text-ink hover:text-brand-pink transition-colors group"
+                    title={link.label}
+                    aria-label={link.label}
+                    className="group flex items-center justify-center w-12 h-12 rounded-full bg-[#0a0a0a] text-white hover:bg-brand-pink hover:scale-105 transition-all duration-200 shadow-md"
                   >
-                    <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                      <polyline points="15 3 21 3 21 9" />
-                      <line x1="10" y1="14" x2="21" y2="3" />
+                    {/* Link Chain Icon */}
+                    <svg className="w-5 h-5 group-hover:rotate-45 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                     </svg>
-                    {link.label}
                   </a>
                 ))}
               </div>

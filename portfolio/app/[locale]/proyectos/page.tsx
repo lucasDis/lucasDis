@@ -73,6 +73,8 @@ export default async function ProjectsPage({ params }: Props) {
     <>
       <SiteHeader
         locale={resolvedLocale}
+        variant="dark"
+        position="relative"
         labels={{
           projects: t("nav.projects"),
           about: t("nav.about"),
@@ -89,6 +91,7 @@ export default async function ProjectsPage({ params }: Props) {
         <FeaturedProjects
           projects={projects}
           featuredOnly={false}
+          locale={resolvedLocale}
           labels={{
             eyebrow: t("projects.all_eyebrow"),
             title: t("projects.all_title"),
