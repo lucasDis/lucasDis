@@ -12,6 +12,8 @@ export type MediaRendererProps = {
   aspectRatio?: string;
   onLoad?: () => void;
   onError?: () => void;
+  autoPlay?: boolean;
+  controls?: boolean;
 };
 
 type RenderState = "loading" | "loaded" | "error";
@@ -66,6 +68,8 @@ export function MediaRenderer({
   aspectRatio = "aspect-video",
   onLoad,
   onError,
+  autoPlay,
+  controls = true,
 }: MediaRendererProps) {
   // Images go through the server-side proxy to bypass CORS.
   // Videos are served directly — the browser media engine handles cross-origin
@@ -108,7 +112,7 @@ export function MediaRenderer({
           <>
             <Skeleton visible={state === "loading"} />
             {/* Videos served directly from CDN — no proxy needed */}
-            <video id={id} src={src} aria-label={alt} controls preload="metadata"
+            <video id={id} src={src} aria-label={alt} autoPlay={autoPlay} controls={controls} preload="metadata"
               className="media-renderer-video" onLoadedMetadata={handleLoad} onError={handleError} />
           </>
         )}
