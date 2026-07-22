@@ -44,8 +44,7 @@ export function CustomCursor() {
     const ringY = gsap.quickTo(ring, "y", { duration: 0.45, ease: "power2.out" });
 
     let mouseX = -300, mouseY = -300;
-    let isHovering  = false;
-    let suppressed  = false;
+    let isHovering = false;
 
     // Ring size helpers — animate via CSS transition
     const setRingSize = (size: number) => {
@@ -89,11 +88,9 @@ export function CustomCursor() {
       if (target?.closest("[data-cursor-none]")) {
         dot.style.opacity  = "0";
         ring.style.opacity = "0";
-        suppressed = true;
         magEls.forEach(({ qx, qy }) => { qx(0); qy(0); });
         return;
       }
-      suppressed = false;
       dot.style.opacity  = "1";
       ring.style.opacity = "1";
 
@@ -148,8 +145,6 @@ export function CustomCursor() {
       magEls.forEach(({ el }) => gsap.set(el, { x: 0, y: 0 }));
     };
   }, []);
-
-  const half = RING_SIZE / 2;
 
   return (
     <>

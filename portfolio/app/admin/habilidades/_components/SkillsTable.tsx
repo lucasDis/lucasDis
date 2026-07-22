@@ -70,7 +70,7 @@ export function SkillsTable({ rows }: { rows: Row[] }) {
                 {GROUP_LABEL[row.group] ?? row.group}
               </td>
               <td className="px-4 py-3 text-body-sm text-body">
-                {row.yearsOfExperience != null ? `${row.yearsOfExperience} años` : “—”}
+                {row.yearsOfExperience != null ? `${row.yearsOfExperience} años` : "—"}
               </td>
               <td className="px-4 py-3 text-body-sm text-body">{row.order}</td>
               <td className="px-4 py-3">
