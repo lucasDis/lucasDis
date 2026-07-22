@@ -60,6 +60,8 @@ const ProjectSchema = new Schema(
     media: { type: [MediaItemSchema], default: [] },
     externalLinks: { type: [ExternalLinkSchema], default: [] },
     featured: { type: Boolean, default: false, index: true },
+    /** Controls which featured projects appear on the home page and in what order. Lower = higher priority. */
+    featuredOrder: { type: Number, default: 0 },
     published: { type: Boolean, default: false, index: true },
     isPersonalProject: { type: Boolean, default: false },
     order: { type: Number, default: 0 },

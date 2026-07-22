@@ -1,9 +1,8 @@
 import { z } from "zod";
 
 /**
- * Zod schema for the public contact form. Mirrors `models/ContactMessage.ts`.
- * Shared between the client form (react-hook-form resolver) and the
- * server action, so validation rules only live in one place.
+ * Zod schema for the public contact form.
+ * Includes honeypot & bot security fields.
  */
 export const contactSchema = z.object({
   name: z
@@ -24,6 +23,10 @@ export const contactSchema = z.object({
     .string()
     .min(1, { error: "El mensaje es obligatorio" })
     .max(2000, { error: "Máximo 2000 caracteres" }),
+  // Honeypot field — must remain empty. Bots fill all fields automatically.
+  website: z.string().optional(),
+  // Timestamp field — sent by form on submit to detect instant bot submissions
+  _ts: z.number().optional(),
 });
 
 export type ContactFormValues = z.input<typeof contactSchema>;

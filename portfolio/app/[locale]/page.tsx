@@ -15,13 +15,12 @@ import { ProjectModel } from "@/models/Project";
 import { SiteSettingsModel } from "@/models/SiteSettings";
 import { SkillModel } from "@/models/Skill";
 import WarpShaderHero from "@/components/ui/wrap-shader";
-import Link from "next/link";
 import { SiteHeader } from "@/components/public/SiteHeader";
 import { SiteFooter } from "@/components/public/SiteFooter";
 import { BackgroundBlobs } from "@/components/public/BackgroundBlobs";
 import { FloatingScrollNav } from "@/components/public/FloatingScrollNav";
 import {
-  FeaturedProjects,
+  FeaturedProjectsList,
   type FeaturedProject,
 } from "@/components/public/home/FeaturedProjects";
 import { PROJECT_FILTER_CATEGORIES } from "@/lib/project-categories";
@@ -112,54 +111,20 @@ export default async function Home({ params }: Props) {
       <FloatingScrollNav />
 
       <main className="flex-1">
-        <WarpShaderHero
-          eyebrow={t("hero.eyebrow")}
-          title={t("hero.title")}
-          subtitle={t("hero.subtitle")}
-        >
-          <Link
-            href={`/${resolvedLocale}/#proyectos`}
-            className="inline-flex h-11 items-center justify-center px-6 bg-on-dark text-primary rounded-pill hover:scale-105 transition-transform duration-300 font-semibold text-button"
-          >
-            {t("hero.cta_projects")}
-          </Link>
-          <Link
-            href={`/${resolvedLocale}/#contacto`}
-            className="inline-flex h-11 items-center justify-center px-6 bg-white/15 backdrop-blur-sm border border-white/20 text-on-dark rounded-pill hover:bg-white/25 transition-all duration-300 hover:scale-105 font-semibold text-button"
-          >
-            {t("hero.cta_contact")}
-          </Link>
-        </WarpShaderHero>
+        <WarpShaderHero eyebrow={t("hero.eyebrow")} />
 
-        <FeaturedProjects
+
+        <FeaturedProjectsList
           projects={featured}
-          featuredOnly={true}
-          showViewAll={true}
+          locale={resolvedLocale}
           viewAllHref={`/${resolvedLocale}/proyectos`}
           labels={{
             eyebrow: t("projects.eyebrow"),
             title: t("projects.title"),
-            subtitle: t("projects.subtitle"),
-            empty: t("projects.empty"),
-            closeModal: t("projects.close_modal"),
-            filterLabel: t("projects.filter_label"),
-            client: t("projects.client"),
-            role: t("projects.role"),
-            tools: t("projects.tools"),
             categories: Object.fromEntries(
               PROJECT_FILTER_CATEGORIES.map((cat) => [cat, t(`projects.categories.${cat}`)])
             ),
-            openDetailsTemplate: t("projects.open_details"),
             viewAll: t("projects.view_all"),
-            statusCompleted: t("projects.status.completed"),
-            statusOngoing: t("projects.status.ongoing"),
-            searchPlaceholder: t("projects.search_placeholder"),
-            allYears: t("projects.all_years"),
-            readMore: t("projects.read_more"),
-            showLess: t("projects.show_less"),
-            pauseSlideshow: t("projects.pause_slideshow"),
-            playSlideshow: t("projects.play_slideshow"),
-            expandImage: t("projects.expand_image"),
           }}
         />
 

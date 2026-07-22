@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import { getTranslation } from "@/lib/i18n/server";
 import { locales, isSupportedLocale, defaultLocale } from "@/lib/i18n/settings";
+import { CustomCursor } from "@/components/ui/CustomCursor";
+
 
 const inter = Inter({
   variable: "--font-inter",
@@ -47,7 +49,8 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={resolvedLocale} className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col bg-canvas text-ink font-body" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-canvas text-ink font-body cursor-none" suppressHydrationWarning>
+        <CustomCursor />
         {children}
       </body>
     </html>

@@ -21,8 +21,8 @@
     "cta_contact": "Get in touch"
   },
   "projects": {
-    "eyebrow": "Portfolio",
-    "title": "Featured projects",
+    "eyebrow": "Projects",
+    "title": "Featured",
     "subtitle": "A selection of recent work in web, branding, UX/UI and 3D.",
     "empty": "No projects in this category yet.",
     "open_details": "View details for {{title}}",

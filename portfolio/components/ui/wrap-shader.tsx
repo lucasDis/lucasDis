@@ -1,24 +1,25 @@
 "use client";
 
 import { Warp } from "@paper-design/shaders-react";
-import type { ReactNode } from "react";
+import { RoleCycler } from "@/components/public/home/RoleCycler";
 
-interface WarpShaderHeroProps {
-  title: string;
-  subtitle?: string;
-  eyebrow?: string;
-  children?: ReactNode;
-}
-
-export default function WarpShaderHero({
-  title,
-  subtitle,
-  eyebrow,
-  children,
-}: WarpShaderHeroProps) {
+/**
+ * WarpShaderHero
+ *
+ * Layout (vertical, centered):
+ *   1. Eyebrow — "Portfolio 2026"
+ *   2. Name    — two lines on mobile/tablet, one line on large screens:
+ *                  mobile/md : "Lucas" / "Ruiz Díaz"  (each line as big as possible)
+ *                  lg+       : "Lucas Ruiz Díaz"       (single line, clamp)
+ *   3. RoleCycler — animated role cycling
+ */
+export default function WarpShaderHero({ eyebrow }: { eyebrow?: string }) {
   return (
-    <section id="welcome" className="relative h-[calc(100vh-4rem)] min-h-150 flex flex-col items-center justify-center overflow-hidden py-16 md:py-24 px-6 bg-primary">
-      {/* Background Shader */}
+    <section
+      id="welcome"
+      className="relative h-[calc(100vh-4rem)] min-h-150 flex flex-col items-center justify-center overflow-hidden bg-primary"
+    >
+      {/* Shader background */}
       <div className="absolute inset-0 z-0">
         <Warp
           style={{ height: "100%", width: "100%" }}
@@ -34,35 +35,55 @@ export default function WarpShaderHero({
           speed={1.0}
           colors={["#1a3a3a", "#ff4d8b", "#b8a4ed", "#ffb084"]}
         />
-        {/* Dark overlay for contrast and WCAG compliance */}
         <div className="absolute inset-0 bg-primary/45 backdrop-blur-[1px]" />
       </div>
 
-      {/* Hero content - Centered minimal card container aligned with other sections */}
-      <div className="relative z-10 max-w-7xl w-full text-center p-8 md:p-12 rounded-3xl border border-white/5 bg-surface-soft/20 backdrop-blur-md shadow-lg space-y-6 select-none">
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center text-center gap-4 px-6 select-none w-full">
+
+        {/* Eyebrow */}
         {eyebrow && (
-          <p className="text-caption-uppercase text-white/75 tracking-widest">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-white/70">
             {eyebrow}
           </p>
         )}
 
-        <h1 className="text-on-dark text-display-md md:text-display-lg lg:text-display-xl font-medium tracking-tight text-balance">
-          {title}
+        {/*
+          Name — two-line on mobile/tablet, one-line on lg+.
+          Each span fills the available width via vw-based font size.
+          lg:hidden / hidden lg:block swap between the two layouts.
+        */}
+        <h1 data-magnetic className="font-bold text-white leading-[0.92] tracking-tight w-full" style={{ letterSpacing: "-0.04em" }}>
+          {/* Mobile / tablet — stacked */}
+          <span className="block lg:hidden">
+            <span
+              className="block"
+              style={{ fontSize: "clamp(72px, 22vw, 140px)" }}
+            >
+              Lucas
+            </span>
+            <span
+              className="block"
+              style={{ fontSize: "clamp(52px, 16vw, 108px)" }}
+            >
+              Ruiz Díaz
+            </span>
+          </span>
+
+          {/* Desktop — single line */}
+          <span
+            className="hidden lg:block"
+            style={{ fontSize: "clamp(72px, 10vw, 200px)" }}
+          >
+            Lucas Ruiz Díaz
+          </span>
         </h1>
 
-        {subtitle && (
-          <p className="text-white/85 text-body-md md:text-title-md font-light leading-relaxed max-w-2xl mx-auto">
-            {subtitle}
-          </p>
-        )}
-      </div>
-
-      {/* Buttons container - Rendered outside the transparent panel */}
-      {children && (
-        <div className="relative z-10 flex flex-col sm:flex-row gap-3 justify-center items-center pt-8">
-          {children}
+        {/* Role cycler */}
+        <div className="text-[18px] md:text-[22px] font-light text-white/80 h-8 flex items-center">
+          <RoleCycler />
         </div>
-      )}
+      </div>
     </section>
   );
 }

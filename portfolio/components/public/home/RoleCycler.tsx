@@ -1,14 +1,14 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 
-const ROLES = ["Dise\u00f1ador Gr\u00e1fico", "Desarrollador Web"];
-const FADE_MS = 280;   // fade-out / fade-in duration
-const HOLD_MS = 5000;  // time each role is fully visible
+const ROLES = ["Diseñador Gráfico", "Desarrollador Web", "UX/UI Designer"];
+const FADE_MS = 320;   // fade-out / fade-in duration
+const HOLD_MS = 2800;  // time each role is fully visible
 
 /**
- * RoleCycler — alternates between roles with a clean fade+slide animation.
- * No dependencies beyond React. HOLD_MS between swaps, FADE_MS per transition.
+ * RoleCycler — cycles through roles with a clean fade + slight upward slide.
+ * Three roles: Diseñador Gráfico / Desarrollador Web / UX/UI Designer
  */
 export function RoleCycler() {
   const [index, setIndex]     = useState(0);
@@ -16,15 +16,13 @@ export function RoleCycler() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      // Fade out
       setVisible(false);
-      // After fade-out completes, swap text and fade in
       const swap = setTimeout(() => {
         setIndex((i) => (i + 1) % ROLES.length);
         setVisible(true);
       }, FADE_MS);
       return () => clearTimeout(swap);
-    }, HOLD_MS);
+    }, HOLD_MS + FADE_MS);
 
     return () => clearInterval(interval);
   }, []);
@@ -34,9 +32,9 @@ export function RoleCycler() {
       aria-live="polite"
       style={{
         display: "inline-block",
-        transition: `opacity ${FADE_MS}ms ease, transform ${FADE_MS}ms ease`,
+        transition: `opacity ${FADE_MS}ms cubic-bezier(.4,0,.2,1), transform ${FADE_MS}ms cubic-bezier(.4,0,.2,1)`,
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0px)" : "translateY(-6px)",
+        transform: visible ? "translateY(0px)" : "translateY(-8px)",
       }}
     >
       {ROLES[index]}

@@ -50,6 +50,8 @@
   --radius-xl: 24px;
   --radius-pill: 9999px;
   --radius-full: 9999px;
+  /* Unified button radius — change this ONE value to update all buttons */
+  --radius-btn: 8px;
 
   /* ─────────────────── FONT FAMILIES ─────────────────── */
   /*
@@ -159,7 +161,34 @@ body {
   min-height: 100vh;
 }
 
-/* ─────────────────── ANIMATIONS — Floating blobs (Fase 1) ─────────────────── */
+/* ─────────────────── CUSTOM CURSOR ─────────────────── */
+/* Hide native cursor globally — CustomCursor component provides the replacement */
+*, *::before, *::after {
+  cursor: none !important;
+}
+
+/* Restore pointer cursor hint inside the custom cursor JS (not needed — CSS handles display) */
+
+/* ─────────────────── OUTLINED BUTTON HOVER — fill + black text ─────────────────── */
+/* Matches navbar Contactar (data-cursor-outlined) and any other outlined button */
+[data-cursor-outlined] {
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+[data-cursor-outlined]:hover {
+  background-color: #ffffff !important;
+  color: #0a0a0a !important;
+  border-color: #ffffff !important;
+}
+
+/* ─────────────────── BUTTON RADIUS — unified ─────────────────── */
+/* All button-like elements use --radius-btn so one change covers all (except pill buttons) */
+button:not([class*="rounded-full"]),
+[role="button"]:not([class*="rounded-full"]),
+a.inline-flex:not([class*="rounded-full"]),
+[data-cursor-outlined] {
+  border-radius: var(--radius-btn) !important;
+}
+
 @keyframes float-slow {
   0%,
   100% {

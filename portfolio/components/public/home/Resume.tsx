@@ -67,20 +67,10 @@ export function Resume({ locale, labels }: ResumeProps) {
       {/* Full width container, aligned matching hero layout spacing */}
       <div className="mx-auto max-w-7xl px-6 py-12 md:py-20 flex flex-col items-center text-center">
         
-        {/* Eyebrow */}
-        <span className="text-[11px] font-semibold text-brand-pink uppercase tracking-[0.2em] px-3 py-1 border border-brand-pink/20 rounded-full bg-white/50 mb-6">
-          {labels.eyebrow}
-        </span>
-
-        {/* Title inside CTA */}
-        <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-[#0a0a0a] max-w-2xl leading-tight">
-          {labels.ctaTitle}
+        {/* Single title */}
+        <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-[#0a0a0a] leading-none mb-2">
+          Trayectoria
         </h2>
-
-        {/* Description inside CTA */}
-        <p className="mt-4 text-body text-body-md max-w-xl leading-relaxed">
-          {labels.ctaSubtitle}
-        </p>
 
         {/* CTA Button */}
         <div className="mt-8 flex justify-center">

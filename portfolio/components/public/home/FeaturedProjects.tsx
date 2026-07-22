@@ -49,6 +49,8 @@ export type FeaturedProject = {
   media: Array<{ url: string; type: "image" | "video"; alt: string; order: number; isCover?: boolean }>;
   externalLinks?: Array<{ label: string; url: string }>;
   featured?: boolean;
+  /** Controls display order among featured projects on the home page. */
+  featuredOrder?: number;
 };
 
 export type FeaturedProjectsLabels = {
@@ -724,7 +726,7 @@ function ProjectModal({
 
         {/* Modal Container — vertical until lg; wider on desktop */}
         <div
-          className="relative w-full h-full max-w-none sm:max-w-3xl sm:h-[90vh] sm:max-h-[900px] lg:max-w-[min(1680px,94vw)] lg:h-[85vh] lg:max-h-[920px] bg-canvas rounded-none sm:rounded-2xl overflow-hidden shadow-2xl flex flex-col lg:flex-row border-0 sm:border sm:border-[#e5e5e5]"
+          className="relative w-full h-full max-w-none sm:max-w-3xl sm:h-[90vh] sm:max-h-225 lg:max-w-[min(1680px,94vw)] lg:h-[85vh] lg:max-h-230 bg-canvas rounded-none sm:rounded-2xl overflow-hidden shadow-2xl flex flex-col lg:flex-row border-0 sm:border sm:border-[#e5e5e5]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
@@ -792,7 +794,7 @@ function ProjectModal({
                       return (
                         <div
                           key={`${item.url}-${i}`}
-                          className="story-progress-track h-[3px] sm:h-1 flex-1 min-w-0 rounded-full bg-white/35 overflow-hidden"
+                          className="story-progress-track h-0.75 sm:h-1 flex-1 min-w-0 rounded-full bg-white/35 overflow-hidden"
                         >
                           <div
                             className="h-full bg-white rounded-full"
@@ -1037,5 +1039,209 @@ function ProjectModal({
         </div>
       )}
     </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FeaturedProjectsList — Canvas-3 §2a: vertical full-width list with custom cursor
+// Used on the home page. Opens each project in a new tab via /[locale]/proyectos/[slug].
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface FeaturedProjectsListProps {
+  projects: FeaturedProject[];
+  labels: Pick<FeaturedProjectsLabels, "viewAll" | "eyebrow" | "title" | "categories">;
+  viewAllHref?: string;
+  locale: string;
+}
+
+export function FeaturedProjectsList({
+  projects,
+  labels,
+  viewAllHref,
+  locale,
+}: FeaturedProjectsListProps) {
+  // Take up to 4 featured projects, sorted by featuredOrder asc
+  const displayed = [...projects]
+    .filter((p) => p.featured)
+    .sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0))
+    .slice(0, 4);
+
+  // Track which project IDs have broken cover images — those rows are hidden
+  const [brokenIds, setBrokenIds] = useState<Set<string>>(new Set());
+  const markBroken = useCallback((id: string) => {
+    setBrokenIds((prev) => new Set([...prev, id]));
+  }, []);
+
+  const cursorRef = useRef<HTMLDivElement>(null);
+
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const el = cursorRef.current;
+    if (!el) return;
+    el.style.top = e.clientY + "px";
+    el.style.left = e.clientX + "px";
+  }, []);
+
+  const handleEnter = useCallback(() => {
+    const el = cursorRef.current;
+    if (!el) return;
+    el.style.opacity = "1";
+    el.style.transform = "scale(1)";
+  }, []);
+
+  const handleLeave = useCallback(() => {
+    const el = cursorRef.current;
+    if (!el) return;
+    el.style.opacity = "0";
+    el.style.transform = "scale(0.4)";
+  }, []);
+
+  return (
+    <section
+      id="proyectos"
+      aria-label={labels.title}
+      className="bg-transparent text-ink"
+      onMouseMove={handleMouseMove}
+      data-projects-section
+    >
+      {/* "Ver" cursor — mix-blend-mode: difference so it inverts content underneath */}
+      <div
+        ref={cursorRef}
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: 84,
+          height: 84,
+          marginLeft: -42,
+          marginTop: -42,
+          borderRadius: "50%",
+          background: "#ffffff",
+          color: "#000",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          fontWeight: 700,
+          letterSpacing: "0.5px",
+          textTransform: "uppercase",
+          pointerEvents: "none",
+          zIndex: 10001,
+          opacity: 0,
+          transform: "scale(0.4)",
+          transition: "opacity 200ms, transform 200ms",
+          willChange: "transform, top, left",
+          mixBlendMode: "difference",
+        }}
+      >
+        Ver
+      </div>
+
+      <div className="mx-auto max-w-7xl px-6 pt-16 pb-4 lg:pt-20">
+        <SectionHeader
+          eyebrow={labels.eyebrow}
+          title={labels.title}
+        />
+      </div>
+
+      {/* Vertical list */}
+      <div className="mx-auto max-w-7xl">
+        {displayed.map((project, index) => {
+          const cover = project.media.find((m) => m.isCover) || project.media[0];
+          const isEven = index % 2 === 0;
+          const categoryLabel = labels.categories[project.category] ?? project.category;
+
+          return (
+            <a
+              key={project._id}
+              href={`/${locale}/proyectos/${project.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onMouseEnter={handleEnter}
+              onMouseLeave={handleLeave}
+              data-cursor-none
+              style={{ cursor: "none", display: brokenIds.has(project._id) ? "none" : "block" }}
+              className="group block px-6"
+            >
+              <div
+                className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center py-10 lg:py-14 border-t border-hairline"
+              >
+                {/* Image */}
+                <div
+                  className={`rounded-2xl overflow-hidden bg-surface-soft aspect-4/3 lg:aspect-video ${
+                    isEven ? "lg:order-1" : "lg:order-2"
+                  }`}
+                >
+                  {cover ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={cover.url}
+                      alt={cover.alt || project.title}
+                      className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-[1.04]"
+                      onError={() => markBroken(project._id)}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-surface-strong" />
+                  )}
+                </div>
+
+                {/* Text */}
+                <div className={isEven ? "lg:order-2" : "lg:order-1 lg:text-right"}>
+                  <span className="text-[12px] font-semibold tracking-widest uppercase text-brand-pink">
+                    {categoryLabel} — {project.year}
+                  </span>
+                  <h3 className="mt-2.5 text-3xl lg:text-[34px] font-semibold tracking-tight text-ink transition-colors duration-200 group-hover:text-brand-pink" style={{ letterSpacing: "-0.8px" }}>
+                    {project.title}
+                  </h3>
+                  <p
+                    className={`mt-3.5 text-[15px] leading-relaxed text-body max-w-120 ${
+                      !isEven ? "ml-auto" : ""
+                    }`}
+                  >
+                    {project.shortDescription}
+                  </p>
+                  {project.tools && project.tools.length > 0 && (
+                    <div
+                      className={`flex gap-2 mt-5 flex-wrap ${
+                        !isEven ? "justify-end" : ""
+                      }`}
+                    >
+                      {project.tools.slice(0, 4).map((tool) => (
+                        <span
+                          key={tool}
+                          className="text-[12px] font-semibold px-3.5 py-1.5 rounded-full border border-hairline text-body"
+                        >
+                          {tool}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </a>
+          );
+        })}
+
+        {/* Bottom border after last item */}
+        <div className="mx-6 border-t border-hairline" />
+      </div>
+
+      {/* View all */}
+      {viewAllHref && labels.viewAll && (
+        <div className="mx-auto max-w-7xl px-6 pt-12 pb-16 lg:pb-24 flex justify-center">
+          <a
+            href={viewAllHref}
+            className="inline-flex h-11 items-center gap-2 px-6 rounded-full border border-ink text-ink text-[14px] font-semibold hover:bg-ink hover:text-canvas transition-all duration-300 group"
+          >
+            {labels.viewAll}
+            <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </a>
+        </div>
+      )}
+    </section>
   );
 }

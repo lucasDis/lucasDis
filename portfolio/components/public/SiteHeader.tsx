@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { LocaleSwitcher } from "@/components/ui/LocaleSwitcher";
 import type { Locale } from "@/lib/i18n/settings";
@@ -9,13 +8,13 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
 /**
- * SiteHeader — top navigation for public pages.
+ * SiteHeader — transparent, floats over hero.
  *
- * Desktop: sticky cream bar with logo + anchor nav + locale switcher + CTA.
- * Mobile : logo + hamburger button → slide-down panel with all nav items.
+ * Left  : "Contactar" — white outlined button
+ * Right : GitHub (white) · LinkedIn (white) · Hamburger (white lines)
  *
- * Section order on home (kept in sync with page.tsx):
- *   #welcome → #proyectos → #sobre-mi → #servicios → #habilidades → #cv → #contacto
+ * No background, no border, no blur — completely transparent.
+ * The hero behind provides context.
  */
 
 interface SiteHeaderProps {
@@ -28,9 +27,11 @@ interface SiteHeaderProps {
     cv: string;
     hire: string;
   };
+  github?: string;
+  linkedin?: string;
 }
 
-export function SiteHeader({ locale, labels }: SiteHeaderProps) {
+export function SiteHeader({ locale, labels, github, linkedin }: SiteHeaderProps) {
   const base = `/${locale}`;
   const [isOpen, setIsOpen] = useState(false);
 
@@ -42,119 +43,111 @@ export function SiteHeader({ locale, labels }: SiteHeaderProps) {
     { href: `${base}/#cv`, label: labels.cv },
   ];
 
-  // Lock body scroll while mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
-  // Close on Escape key
   useEffect(() => {
     if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsOpen(false);
-    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setIsOpen(false); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen]);
 
-  const handleNavClick = useCallback(
-    (href: string, e: React.MouseEvent) => {
-      if (href.endsWith("/#cv")) {
-        e.preventDefault();
-        window.dispatchEvent(new CustomEvent("open-cv-modal"));
-      }
-      setIsOpen(false);
-    },
-    []
-  );
+  const handleNavClick = useCallback((href: string, e: React.MouseEvent) => {
+    if (href.endsWith("/#cv")) {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent("open-cv-modal"));
+    }
+    setIsOpen(false);
+  }, []);
+
+  const githubUrl  = github   ?? "https://github.com/lucasruizdiaz";
+  const linkedinUrl = linkedin ?? "https://linkedin.com/in/lucasruizdiaz";
 
   return (
     <>
-      <header
-        className={cn(
-          "sticky top-0 z-40 w-full",
-          "bg-canvas/85 backdrop-blur supports-backdrop-filter:bg-canvas/70",
-          "border-b border-hairline"
-        )}
-      >
+      <header className={cn("absolute top-0 left-0 right-0 z-40 w-full bg-transparent")}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          {/* Logo */}
-          <Link
-            href={`${base}/#welcome`}
-            className="text-title-md text-ink hover:opacity-80 transition-opacity"
-            onClick={() => setIsOpen(false)}
-          >
-            Lucas Ruiz Díaz
-          </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={(e) => handleNavClick(link.href, e)}
-                className="px-3 py-2 text-nav-link text-body hover:text-ink transition-colors rounded-sm"
+          {/* LEFT — Contactar (white outlined) */}
+          <AnimatePresence>
+            {!isOpen && (
+              <motion.div
+                key="hire-cta"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Right side: locale switcher + CTA + hamburger */}
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:block">
-              <LocaleSwitcher currentLocale={locale} />
-            </div>
-            <AnimatePresence>
-              {!isOpen && (
-                <motion.div
-                  key="hire-cta"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className="hidden sm:block"
+                <Link
+                  href={`${base}/#contacto`}
+                  data-cursor-outlined
+                  data-magnetic
+                  className="inline-flex h-9 items-center justify-center px-4 rounded-md text-[13px] font-semibold border border-white/70 text-white/90 hover:border-white hover:text-white hover:bg-white/10 transition-all duration-200"
                 >
-                  <ButtonLink
-                    href={`${base}/#contacto`}
-                    variant="primary"
-                    size="sm"
-                  >
-                    {labels.hire}
-                  </ButtonLink>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  {labels.hire}
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-            {/* Hamburger — mobile only */}
+          {isOpen && <div />}
+
+          {/* RIGHT — GitHub · LinkedIn · Hamburger (all white) */}
+          <div className="flex items-center gap-1">
+
+            {/* GitHub */}
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              data-magnetic
+              className="flex items-center justify-center w-9 h-9 rounded-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden>
+                <path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.021C22 6.484 17.522 2 12 2z" />
+              </svg>
+            </a>
+
+            {/* LinkedIn */}
+            <a
+              href={linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              data-magnetic
+              className="flex items-center justify-center w-9 h-9 rounded-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden>
+                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zm-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79zM6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68zm1.39 9.94v-8.37H5.5v8.37h2.77z" />
+              </svg>
+            </a>
+
+            {/* Hamburger — white lines */}
             <button
               type="button"
               aria-label={isOpen ? "Close menu" : "Open menu"}
               aria-expanded={isOpen}
-              aria-controls="mobile-menu"
+              aria-controls="nav-menu"
+              data-magnetic
               onClick={() => setIsOpen((v) => !v)}
-              className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.25 rounded-sm hover:bg-surface-soft transition-colors focus-visible:outline-2 focus-visible:outline-brand-pink"
+              className="flex flex-col justify-center items-center w-10 h-10 gap-1.5 rounded-sm hover:bg-white/10 transition-colors focus-visible:outline-2 focus-visible:outline-white/50 ml-1"
             >
               <motion.span
-                className="block h-px w-5 bg-ink origin-center"
+                className="block h-px w-5 bg-white origin-center"
                 animate={isOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
                 transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
               />
               <motion.span
-                className="block h-px w-5 bg-ink"
-                animate={
-                  isOpen
-                    ? { opacity: 0, scaleX: 0 }
-                    : { opacity: 1, scaleX: 1 }
-                }
+                className="block h-px w-5 bg-white"
+                animate={isOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
                 transition={{ duration: 0.15 }}
               />
               <motion.span
-                className="block h-px w-5 bg-ink origin-center"
+                className="block h-px w-5 bg-white origin-center"
                 animate={isOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
                 transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
               />
@@ -163,26 +156,24 @@ export function SiteHeader({ locale, labels }: SiteHeaderProps) {
         </div>
       </header>
 
-      {/* ── Mobile Menu ── */}
+      {/* ── Menu Panel ── */}
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
-              key="mobile-backdrop"
+              key="menu-backdrop"
               aria-hidden="true"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="fixed inset-0 z-30 bg-ink/20 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-30 bg-ink/20 backdrop-blur-sm"
               onClick={() => setIsOpen(false)}
             />
 
-            {/* Panel */}
             <motion.div
-              key="mobile-menu"
-              id="mobile-menu"
+              key="nav-menu"
+              id="nav-menu"
               role="dialog"
               aria-modal="true"
               aria-label="Navigation menu"
@@ -190,47 +181,30 @@ export function SiteHeader({ locale, labels }: SiteHeaderProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="fixed top-16 left-0 right-0 z-40 md:hidden bg-canvas border-b border-hairline shadow-md"
+              className="fixed top-16 left-0 right-0 z-40 bg-canvas border-b border-hairline shadow-md"
             >
               <div className="mx-auto max-w-7xl px-6 pt-4 pb-8 flex flex-col">
-
-                {/* Nav links */}
-                <nav aria-label="Mobile navigation">
+                <nav aria-label="Navigation">
                   {NAV_LINKS.map((link, i) => (
                     <motion.div
                       key={link.href}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        delay: 0.04 + i * 0.05,
-                        duration: 0.26,
-                        ease: [0.25, 0.46, 0.45, 0.94],
-                      }}
+                      transition={{ delay: 0.04 + i * 0.05, duration: 0.26, ease: [0.25, 0.46, 0.45, 0.94] }}
                     >
                       <Link
                         href={link.href}
                         onClick={(e) => handleNavClick(link.href, e)}
                         className="group flex items-center justify-between py-4 border-b border-hairline-soft hover:text-brand-pink transition-colors duration-200"
-                        style={{
-                          fontSize: "clamp(20px, 5.5vw, 30px)",
-                          fontWeight: 500,
-                          letterSpacing: "-0.5px",
-                          color: "var(--color-ink)",
-                        }}
+                        style={{ fontSize: "clamp(20px, 5.5vw, 30px)", fontWeight: 500, letterSpacing: "-0.5px", color: "var(--color-ink)" }}
                       >
                         {link.label}
-                        <span
-                          className="text-muted-soft text-xl group-hover:text-brand-pink transition-all duration-200 group-hover:translate-x-1"
-                          aria-hidden="true"
-                        >
-                          →
-                        </span>
+                        <span className="text-muted-soft text-xl group-hover:text-brand-pink transition-all duration-200 group-hover:translate-x-1" aria-hidden="true">→</span>
                       </Link>
                     </motion.div>
                   ))}
                 </nav>
 
-                {/* Bottom row: locale switcher + hire CTA */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -238,16 +212,7 @@ export function SiteHeader({ locale, labels }: SiteHeaderProps) {
                   className="flex items-center justify-between pt-6"
                 >
                   <LocaleSwitcher currentLocale={locale} />
-                  <ButtonLink
-                    href={`${base}/#contacto`}
-                    variant="primary"
-                    size="default"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {labels.hire}
-                  </ButtonLink>
                 </motion.div>
-
               </div>
             </motion.div>
           </>
