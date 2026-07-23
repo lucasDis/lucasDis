@@ -8,7 +8,12 @@ import { AdminFilterBar } from "./_components/AdminFilterBar";
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ category?: string; year?: string; search?: string }>;
+  searchParams: Promise<{
+    category?: string;
+    year?: string;
+    search?: string;
+    status?: string;
+  }>;
 };
 
 const VALID_CATEGORIES = [
@@ -20,12 +25,20 @@ const VALID_CATEGORIES = [
 ] as const;
 type ProjectCategory = (typeof VALID_CATEGORIES)[number];
 
+const VALID_STATUSES = ["published", "draft"] as const;
+type ProjectStatus = (typeof VALID_STATUSES)[number];
+
 export default async function ProyectosPage({ searchParams }: PageProps) {
-  const { category, year, search } = await searchParams;
+  const { category, year, search, status } = await searchParams;
   const active: ProjectCategory | null = (VALID_CATEGORIES as readonly string[]).includes(
     category ?? ""
   )
     ? (category as ProjectCategory)
+    : null;
+  const activeStatus: ProjectStatus | null = (
+    VALID_STATUSES as readonly string[]
+  ).includes(status ?? "")
+    ? (status as ProjectStatus)
     : null;
 
   await dbConnect();
@@ -42,6 +55,9 @@ export default async function ProyectosPage({ searchParams }: PageProps) {
   if (year) {
     query.year = Number(year);
   }
+  if (activeStatus) {
+    query.published = activeStatus === "published";
+  }
   if (search) {
     query.$or = [
       { title: { $regex: search, $options: "i" } },
@@ -56,6 +72,7 @@ export default async function ProyectosPage({ searchParams }: PageProps) {
   // Aggregate with match to show matching count on categories
   const countQuery: any = {};
   if (year) countQuery.year = Number(year);
+  if (activeStatus) countQuery.published = activeStatus === "published";
   if (search) {
     countQuery.$or = [
       { title: { $regex: search, $options: "i" } },
@@ -121,6 +138,7 @@ export default async function ProyectosPage({ searchParams }: PageProps) {
         counts={counts}
         currentYear={year}
         currentSearch={search}
+        currentStatus={status}
       />
 
       <AdminFilterBar years={sortedYears} />

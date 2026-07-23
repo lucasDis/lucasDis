@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { AnalyticsGuard } from "@/components/ui/AnalyticsGuard";
 import "../globals.css";
 import { getTranslation } from "@/lib/i18n/server";
 import { locales, isSupportedLocale, defaultLocale } from "@/lib/i18n/settings";
@@ -53,6 +54,9 @@ export default async function LocaleLayout({ children, params }: Props) {
         <CustomCursor />
         {children}
       </body>
+      {process.env.NEXT_PUBLIC_GA_ID && (
+        <AnalyticsGuard gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      )}
     </html>
   );
 }

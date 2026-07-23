@@ -18,21 +18,24 @@ export function CategoryFilter({
   counts,
   currentYear,
   currentSearch,
+  currentStatus,
 }: {
   active: string | null;
   counts: Record<string, number>;
   currentYear?: string;
   currentSearch?: string;
+  currentStatus?: string;
 }) {
   return (
     <div className="flex flex-wrap gap-2">
       {CATEGORIES.map((c) => {
         const isActive = active === c.value;
-        
+
         const params = new URLSearchParams();
         if (c.value) params.set("category", c.value);
         if (currentYear) params.set("year", currentYear);
         if (currentSearch) params.set("search", currentSearch);
+        if (currentStatus) params.set("status", currentStatus);
         
         const queryString = params.toString();
         const href = queryString ? `/admin/proyectos?${queryString}` : "/admin/proyectos";

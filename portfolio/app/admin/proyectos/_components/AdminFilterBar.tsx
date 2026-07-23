@@ -10,9 +10,11 @@ export function AdminFilterBar({ years }: { years: number[] }) {
 
   const currentSearch = searchParams.get("search") ?? "";
   const currentYear = searchParams.get("year") ?? "";
+  const currentStatus = searchParams.get("status") ?? "";
 
   const [search, setSearch] = useState(currentSearch);
   const [year, setYear] = useState(currentYear);
+  const [status, setStatus] = useState(currentStatus);
 
   // Sync state if URL changes externally
   useEffect(() => {
@@ -23,7 +25,11 @@ export function AdminFilterBar({ years }: { years: number[] }) {
     setYear(currentYear);
   }, [currentYear]);
 
-  const applyFilters = (newSearch: string, newYear: string) => {
+  useEffect(() => {
+    setStatus(currentStatus);
+  }, [currentStatus]);
+
+  const applyFilters = (newSearch: string, newYear: string, newStatus: string) => {
     const params = new URLSearchParams(searchParams.toString());
 
     if (newSearch) {
@@ -38,6 +44,12 @@ export function AdminFilterBar({ years }: { years: number[] }) {
       params.delete("year");
     }
 
+    if (newStatus) {
+      params.set("status", newStatus);
+    } else {
+      params.delete("status");
+    }
+
     router.push(`/admin/proyectos?${params.toString()}`);
   };
 
@@ -45,7 +57,7 @@ export function AdminFilterBar({ years }: { years: number[] }) {
   useEffect(() => {
     const handler = setTimeout(() => {
       if (search !== currentSearch) {
-        applyFilters(search, year);
+        applyFilters(search, year, status);
       }
     }, 400);
     return () => clearTimeout(handler);
@@ -68,7 +80,7 @@ export function AdminFilterBar({ years }: { years: number[] }) {
           onChange={(e) => {
             const val = e.target.value;
             setYear(val);
-            applyFilters(search, val);
+            applyFilters(search, val, status);
           }}
           className={inputClass}
         >
@@ -78,6 +90,21 @@ export function AdminFilterBar({ years }: { years: number[] }) {
               {y}
             </option>
           ))}
+        </select>
+      </div>
+      <div className="w-full sm:w-48">
+        <select
+          value={status}
+          onChange={(e) => {
+            const val = e.target.value;
+            setStatus(val);
+            applyFilters(search, year, val);
+          }}
+          className={inputClass}
+        >
+          <option value="">Todos los estados</option>
+          <option value="published">Publicados</option>
+          <option value="draft">Borradores</option>
         </select>
       </div>
     </div>
