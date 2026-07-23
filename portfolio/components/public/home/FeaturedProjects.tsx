@@ -14,7 +14,6 @@
  * on filter chips, aria-label on close button, navigation with Arrow keys.
  */
 
-import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -101,7 +100,12 @@ export function FeaturedProjects({
   const [filter, setFilter] = useState<string>("all");
   const [search, setSearch] = useState<string>("");
   const [year, setYear] = useState<string>("");
-  const [activeProject, setActiveProject] = useState<FeaturedProject | null>(null);
+
+  // Track which project IDs have broken cover images — those rows are hidden
+  const [brokenIds, setBrokenIds] = useState<Set<string>>(new Set());
+  const markBroken = useCallback((id: string) => {
+    setBrokenIds((prev) => new Set([...prev, id]));
+  }, []);
 
   // Extract all unique years from projects
   const years = Array.from(new Set(projects.map((p) => p.year))).sort((a, b) => b - a);
@@ -109,8 +113,9 @@ export function FeaturedProjects({
   // Filter grid to show ONLY featured projects if featuredOnly is active
   const baseProjects = featuredOnly ? projects.filter((p) => p.featured) : projects;
   
-  // Filter by category, year, and search query
+  // Filter by category, year, search query, and exclude broken images
   const filteredProjects = baseProjects.filter((p) => {
+    if (brokenIds.has(p._id)) return false;
     // 1. Category Filter
     const matchesCategory = filter === "all" || p.category === filter;
     
@@ -130,53 +135,6 @@ export function FeaturedProjects({
       
     return matchesCategory && matchesYear && matchesSearch;
   });
-
-  const openModal = useCallback((project: FeaturedProject) => {
-    setActiveProject(project);
-  }, []);
-
-  const closeModal = useCallback(() => {
-    setActiveProject(null);
-  }, []);
-
-  // Circular navigation across currently filtered projects
-  const handleNextProject = useCallback(() => {
-    if (!activeProject || filteredProjects.length <= 1) return;
-    const currentIndex = filteredProjects.findIndex((p) => p._id === activeProject._id);
-    if (currentIndex === -1) return;
-    const nextIndex = (currentIndex + 1) % filteredProjects.length;
-    setActiveProject(filteredProjects[nextIndex]);
-  }, [activeProject, filteredProjects]);
-
-  const handlePrevProject = useCallback(() => {
-    if (!activeProject || filteredProjects.length <= 1) return;
-    const currentIndex = filteredProjects.findIndex((p) => p._id === activeProject._id);
-    if (currentIndex === -1) return;
-    const prevIndex = (currentIndex - 1 + filteredProjects.length) % filteredProjects.length;
-    setActiveProject(filteredProjects[prevIndex]);
-  }, [activeProject, filteredProjects]);
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (!activeProject) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [activeProject]);
-
-  // Keyboard controls for modal (Escape, ArrowLeft, ArrowRight)
-  useEffect(() => {
-    if (!activeProject) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeModal();
-      if (e.key === "ArrowRight") handleNextProject();
-      if (e.key === "ArrowLeft") handlePrevProject();
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [activeProject, closeModal, handleNextProject, handlePrevProject]);
 
   return (
     <section
@@ -263,7 +221,8 @@ export function FeaturedProjects({
                 <ProjectCardPreview
                   key={project._id}
                   project={project}
-                  onOpen={() => openModal(project)}
+                  locale={locale}
+                  onMarkBroken={markBroken}
                   openDetailsLabel={labels.openDetailsTemplate ? labels.openDetailsTemplate.replace("{{title}}", project.title) : `Ver detalles de ${project.title}`}
                   categoryLabel={labels.categories[project.category] ?? project.category}
                   labels={labels}
@@ -281,28 +240,21 @@ export function FeaturedProjects({
         )}
       </div>
 
-      {activeProject && (
-        <ProjectModal
-          project={activeProject}
-          onClose={closeModal}
-          onNext={handleNextProject}
-          onPrev={handlePrevProject}
-          labels={labels}
-        />
-      )}
     </section>
   );
 }
 
 function ProjectCardPreview({
   project,
-  onOpen,
+  locale = "es",
+  onMarkBroken,
   openDetailsLabel,
   categoryLabel,
   labels,
 }: {
   project: FeaturedProject;
-  onOpen: () => void;
+  locale?: string;
+  onMarkBroken?: (id: string) => void;
   openDetailsLabel: string;
   categoryLabel: string;
   labels: FeaturedProjectsLabels;
@@ -311,6 +263,7 @@ function ProjectCardPreview({
   const [expanded, setExpanded] = useState(false);
   const [canExpand, setCanExpand] = useState(false);
   const descRef = useRef<HTMLParagraphElement>(null);
+  const projectHref = `/${locale}/proyectos/${project.slug}`;
 
   useEffect(() => {
     const el = descRef.current;
@@ -323,10 +276,11 @@ function ProjectCardPreview({
     <article
       className={`project-card-preview group ${expanded ? "is-expanded" : ""}`}
     >
-      <button
-        type="button"
-        onClick={onOpen}
-        className="w-full text-left border-0 bg-transparent p-0 cursor-pointer"
+      <a
+        href={projectHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block w-full text-left border-0 bg-transparent p-0 cursor-pointer"
         aria-label={openDetailsLabel}
       >
         <div className="project-card-preview-image-wrap">
@@ -337,12 +291,13 @@ function ProjectCardPreview({
               type={cover.type}
               aspectRatio=""
               className="project-card-preview-image"
+              onError={() => onMarkBroken?.(project._id)}
             />
           ) : (
             <div className="project-card-preview-image bg-surface-strong" />
           )}
         </div>
-      </button>
+      </a>
 
       {/*
         Body: position:relative so the expanded overlay can use absolute
@@ -355,10 +310,11 @@ function ProjectCardPreview({
             expanded ? "opacity-25" : "opacity-100"
           }`}
         >
-          <button
-            type="button"
-            onClick={onOpen}
-            className="w-full text-left border-0 bg-transparent p-0 cursor-pointer"
+          <a
+            href={projectHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full text-left border-0 bg-transparent p-0 cursor-pointer"
           >
             <div className="flex items-center justify-between text-caption-uppercase text-muted gap-2">
               <span>{categoryLabel}</span>
@@ -379,7 +335,7 @@ function ProjectCardPreview({
             >
               {project.title}
             </h3>
-          </button>
+          </a>
         </div>
 
         {/*
@@ -498,7 +454,7 @@ function MediaThumb({
   );
 }
 
-function ProjectModal({
+export function ProjectModal({
   project,
   onClose,
   onNext,

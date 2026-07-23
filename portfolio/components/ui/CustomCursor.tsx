@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import gsap from "gsap";
 
 /**
@@ -25,8 +26,14 @@ const RING_HOVER  = 48;  // ring diameter on hover over interactives
 const MAGNETIC_MAX = 2;  // px — very subtle
 
 export function CustomCursor() {
+  const pathname = usePathname();
   const dotRef  = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
+
+  // Disable custom cursor in admin dashboard — use default browser cursor
+  if (pathname?.includes("/admin")) {
+    return null;
+  }
 
   useEffect(() => {
     const isTouch   = window.matchMedia("(pointer: coarse)").matches;

@@ -184,7 +184,7 @@ export function ProjectDetailPage({ project, labels, locale }: ProjectDetailPage
 
         {/* Right: Proyectos */}
         <Link
-          href={`/${locale}#proyectos`}
+          href={`/${locale}/proyectos`}
           className="inline-flex items-center gap-2 text-[14px] font-medium text-body hover:text-ink transition-colors group"
         >
           Proyectos
