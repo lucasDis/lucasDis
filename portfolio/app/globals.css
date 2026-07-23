@@ -162,8 +162,10 @@ body {
 }
 
 /* ─────────────────── CUSTOM CURSOR ─────────────────── */
-/* Hide native cursor globally — CustomCursor component provides the replacement */
-*, *::before, *::after {
+/* Hide native cursor on public pages (where CustomCursor is active) */
+body.cursor-none *,
+body.cursor-none *::before,
+body.cursor-none *::after {
   cursor: none !important;
 }
 
