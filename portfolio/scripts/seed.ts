@@ -25,8 +25,8 @@ const PROFILE = {
   location: "Tucumán, Argentina",
   phone: "+54 3773 461508",
   email: "lg_ruizdiaz@hotmail.com",
-  linkedin: "linkedin.com/in/Lucas-Gonzalo-Ruiz-Diaz",
-  github: "github.com/lucasDis",
+  linkedin: "https://www.linkedin.com/in/lucas-gonzalo-ruiz-diaz",
+  github: "https://github.com/lucasDis",
   professionalProfile: `Diseñador Gráfico y Desarrollador Frontend con formación universitaria en Diseño Gráfico y Multimedia. Experiencia en desarrollo de plataformas web institucionales, sistemas de identidad visual y gestión de entornos WordPress en organismos públicos y empresas privadas. Especializado en diseño responsive, optimización SEO, estándares de accesibilidad (WCAG) y experiencia de usuario (UX/UI). Orientado a la eficiencia funcional, coherencia visual y mejora continua de procesos digitales.`,
 };
 
@@ -315,7 +315,7 @@ const SITE_SETTINGS = {
   ogImage: "",
   footerText: "Diseñado y desarrollado en Tucumán, Argentina.",
   socialLinks: {
-    linkedin: "https://linkedin.com/in/Lucas-Gonzalo-Ruiz-Diaz",
+    linkedin: "https://www.linkedin.com/in/lucas-gonzalo-ruiz-diaz",
     github: "https://github.com/lucasDis",
   },
 };

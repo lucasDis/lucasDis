@@ -1038,9 +1038,10 @@ export function FeaturedProjectsList({
   }, []);
 
   const cursorRef = useRef<HTMLDivElement>(null);
-
+  const lastMousePos = useRef({ x: -300, y: -300 });
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
     const el = cursorRef.current;
     if (!el) return;
     el.style.top = e.clientY + "px";
@@ -1059,6 +1060,37 @@ export function FeaturedProjectsList({
     if (!el) return;
     el.style.opacity = "0";
     el.style.transform = "scale(0.4)";
+  }, []);
+
+  useEffect(() => {
+    const onWindowMouseMove = (e: MouseEvent) => {
+      lastMousePos.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const onWindowScroll = () => {
+      if (lastMousePos.current.x < 0) return;
+      const target = document.elementFromPoint(lastMousePos.current.x, lastMousePos.current.y);
+      const cursorNoneEl = target?.closest("[data-cursor-none]");
+      const el = cursorRef.current;
+      if (!el) return;
+
+      if (cursorNoneEl) {
+        el.style.top = lastMousePos.current.y + "px";
+        el.style.left = lastMousePos.current.x + "px";
+        el.style.opacity = "1";
+        el.style.transform = "scale(1)";
+      } else {
+        el.style.opacity = "0";
+        el.style.transform = "scale(0.4)";
+      }
+    };
+
+    window.addEventListener("mousemove", onWindowMouseMove, { passive: true });
+    window.addEventListener("scroll", onWindowScroll, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onWindowMouseMove);
+      window.removeEventListener("scroll", onWindowScroll);
+    };
   }, []);
 
   return (

@@ -72,8 +72,8 @@ export function SiteHeader({
     setIsOpen(false);
   }, []);
 
-  const githubUrl  = github   ?? "https://github.com/lucasruizdiaz";
-  const linkedinUrl = linkedin ?? "https://linkedin.com/in/lucasruizdiaz";
+  const githubUrl  = github   ?? "https://github.com/lucasDis";
+  const linkedinUrl = linkedin ?? "https://www.linkedin.com/in/lucas-gonzalo-ruiz-diaz";
 
   const isDarkVariant = variant === "dark";
 

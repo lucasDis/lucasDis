@@ -83,12 +83,10 @@ export function CustomCursor() {
       '[role="button"]', '[role="link"]', "summary", "[data-magnetic]",
     ].join(",");
 
-    // ── mousemove ─────────────────────────────────────────────────────────
-    const onMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-
-      const target = e.target as Element | null;
+    // ── Update cursor state for given viewport position ───────────────────
+    const updateCursorAtPos = (x: number, y: number, explicitTarget?: Element | null) => {
+      if (x < 0 || y < 0) return;
+      const target = explicitTarget ?? document.elementFromPoint(x, y);
       const half = parseInt(ring.style.width || `${RING_SIZE}`) / 2;
 
       // Own-cursor zone → suppress
@@ -102,12 +100,12 @@ export function CustomCursor() {
       ring.style.opacity = "1";
 
       // Move ring (centered via negative margin offset in style)
-      ringX(mouseX - half);
-      ringY(mouseY - half);
+      ringX(x - half);
+      ringY(y - half);
 
       // Move dot
-      dotX(mouseX - DOT_SIZE / 2);
-      dotY(mouseY - DOT_SIZE / 2);
+      dotX(x - DOT_SIZE / 2);
+      dotY(y - DOT_SIZE / 2);
 
       // Interactive hover state
       const interactive = !!target?.closest(INTERACTIVE);
@@ -122,8 +120,8 @@ export function CustomCursor() {
         const rect = el.getBoundingClientRect();
         const cx   = rect.left + rect.width  / 2;
         const cy   = rect.top  + rect.height / 2;
-        const dx   = mouseX - cx;
-        const dy   = mouseY - cy;
+        const dx   = x - cx;
+        const dy   = y - cy;
         const dist = Math.hypot(dx, dy);
         const hit  = Math.max(rect.width, rect.height) * 0.7;
 
@@ -137,7 +135,22 @@ export function CustomCursor() {
       });
     };
 
+    // ── mousemove ─────────────────────────────────────────────────────────
+    const onMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      updateCursorAtPos(mouseX, mouseY, e.target as Element | null);
+    };
+
+    // ── scroll ────────────────────────────────────────────────────────────
+    const onScroll = () => {
+      if (mouseX >= 0 && mouseY >= 0) {
+        updateCursorAtPos(mouseX, mouseY);
+      }
+    };
+
     document.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     const onLeave = () => {
       dot.style.opacity  = "0";
@@ -147,6 +160,7 @@ export function CustomCursor() {
 
     return () => {
       document.removeEventListener("mousemove", onMove);
+      window.removeEventListener("scroll", onScroll);
       document.removeEventListener("mouseleave", onLeave);
       mo.disconnect();
       magEls.forEach(({ el }) => gsap.set(el, { x: 0, y: 0 }));

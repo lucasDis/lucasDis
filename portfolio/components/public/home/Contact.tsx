@@ -85,7 +85,7 @@ export function Contact({ profile }: ContactProps) {
       aria-label="Contacto"
       className="bg-transparent text-ink select-none"
     >
-      <div className="mx-auto max-w-6xl px-6 py-16 lg:py-24 flex flex-col items-center text-center">
+      <div className="mx-auto max-w-6xl px-6 pt-8 pb-16 lg:pt-12 lg:pb-24 flex flex-col items-center text-center">
 
         {/* Title — "Hablemos" centered */}
         <h2
