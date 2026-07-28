@@ -17,7 +17,7 @@ export default function WarpShaderHero({ eyebrow }: { eyebrow?: string }) {
   return (
     <section
       id="welcome"
-      className="relative h-[calc(100vh-4rem)] min-h-150 flex flex-col items-center justify-center overflow-hidden bg-primary"
+      className="relative h-[100dvh] min-h-[100dvh] lg:h-screen lg:min-h-screen flex flex-col items-center justify-center overflow-hidden bg-primary"
     >
       {/* Shader background */}
       <div className="absolute inset-0 z-0">
@@ -84,6 +84,30 @@ export default function WarpShaderHero({ eyebrow }: { eyebrow?: string }) {
           <RoleCycler />
         </div>
       </div>
+
+      {/* Scroll indicator */}
+      <a
+        href="#proyectos"
+        aria-label="Scroll a proyectos"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-white/50 hover:text-white transition-colors group cursor-pointer"
+      >
+        <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-white/60 group-hover:text-white transition-colors">
+          Scroll
+        </span>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="animate-bounce text-white/60 group-hover:text-white"
+        >
+          <path d="M12 5v14M19 12l-7 7-7-7" />
+        </svg>
+      </a>
     </section>
   );
 }
