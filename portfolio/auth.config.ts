@@ -3,34 +3,40 @@ import type { NextAuthConfig } from "next-auth";
 /**
  * Edge-compatible NextAuth config.
  *
- * This file is imported by BOTH `auth.ts` (full config with DB-touching
- * credentials authorize) and `middleware.ts` (which runs on the Edge
- * runtime — no Node APIs, no Mongoose).
+ * Imported by BOTH `auth.ts` and `proxy.ts` (Edge middleware).
  *
- * The split is required by NextAuth v5: the middleware can't load
- * Mongoose. Keep this file free of Node-only imports.
- *
- * The `authorized` callback below is what the middleware uses to decide
- * whether to allow the request or redirect to the sign-in page.
+ * Auth flow:
+ *   - Step 1 sets a temporary `pending_2fa_user_id` cookie if 2FA is active.
+ *   - The user has NO session until they pass Step 2 (`/admin/login/verify-totp`).
+ *   - Unauthenticated requests to `/admin/*` are automatically blocked by `authorized`.
  */
+
+const PUBLIC_LOGIN_PATHS = [
+  "/admin/login",
+  "/admin/login/verify-totp",
+  "/admin/login/recovery",
+];
+
 export default {
   providers: [],
   pages: { signIn: "/admin/login" },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnLogin = nextUrl.pathname === "/admin/login";
+      const isPublicLoginPath = PUBLIC_LOGIN_PATHS.some(
+        (p) => nextUrl.pathname === p || nextUrl.pathname.startsWith(p + "/")
+      );
 
-      if (isOnLogin) {
-        // Logged-in users hitting the login page go to the dashboard.
+      // Always allow public login paths
+      if (isPublicLoginPath) {
+        // Redirect fully authenticated users away from login to dashboard
         if (isLoggedIn) {
           return Response.redirect(new URL("/admin", nextUrl));
         }
-        // Anyone can see the login page itself.
         return true;
       }
 
-      // Everywhere else under /admin requires auth.
+      // Everywhere else under /admin requires full auth
       return isLoggedIn;
     },
   },

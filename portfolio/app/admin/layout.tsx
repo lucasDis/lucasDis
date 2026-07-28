@@ -4,6 +4,7 @@ import { signOut } from "@/auth";
 import { auth } from "@/auth";
 import "@/app/globals.css";
 import { Inter } from "next/font/google";
+import { RecoveryBanner } from "@/components/admin/RecoveryBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -89,7 +90,10 @@ export default async function AdminLayout({
             </form>
           </div>
         </header>
-        <main className="flex-1 p-8">{children}</main>
+        <main className="flex-1 p-8">
+            <RecoveryBanner />
+            {children}
+          </main>
       </div>
         </div>
       </body>

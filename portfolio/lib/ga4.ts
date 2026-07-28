@@ -6,18 +6,31 @@ import { unstable_cache } from "next/cache";
  * not at module top-level) so builds don't crash when the env vars aren't
  * set yet — same pattern as `lib/db.ts`.
  */
+/**
+ * Normalises the private key regardless of how Vercel stored it:
+ *  - UI paste with literal \n   → replace /\\n/ with newline
+ *  - UI paste with actual Enter → already fine, trim() is enough
+ *  - Extra surrounding quotes   → strip them
+ */
+function normaliseKey(raw: string): string {
+  return raw
+    .trim()
+    .replace(/^["']|["']$/g, "")   // strip accidental surrounding quotes
+    .replace(/\\n/g, "\n");         // literal \n  →  real newline
+}
+
 function getClient(): BetaAnalyticsDataClient {
   const clientEmail = process.env.GA_CLIENT_EMAIL;
-  const privateKey = process.env.GA_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const rawKey      = process.env.GA_PRIVATE_KEY;
 
-  if (!clientEmail || !privateKey) {
+  if (!clientEmail || !rawKey) {
     throw new Error(
       "GA_CLIENT_EMAIL / GA_PRIVATE_KEY are not set. Add them to .env.local."
     );
   }
 
   return new BetaAnalyticsDataClient({
-    credentials: { client_email: clientEmail, private_key: privateKey },
+    credentials: { client_email: clientEmail, private_key: normaliseKey(rawKey) },
   });
 }
 

@@ -2,7 +2,10 @@ import { auth } from "@/auth";
 import { dbConnect } from "@/lib/db";
 import { ProfileModel } from "@/models/Profile";
 import { SiteSettingsModel } from "@/models/SiteSettings";
+import { UserModel } from "@/models/User";
 import { ProfileContentForm, SiteSettingsForm } from "./_components/SettingsForm";
+import { TotpSetupCard } from "./_components/TotpSetupCard";
+import { BackupCodesCard } from "./_components/BackupCodesCard";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +13,19 @@ export default async function ConfiguracionPage() {
   await dbConnect();
   await auth();
 
-  const [profileRaw, settingsRaw] = await Promise.all([
+  const [profileRaw, settingsRaw, session] = await Promise.all([
     ProfileModel.findOne().lean(),
     SiteSettingsModel.findOne().lean(),
+    auth(),
   ]);
+
+  const userId = session?.user?.id;
+  const userRaw = userId
+    ? await UserModel.findById(userId).select("totpEnabled backupCodes").lean()
+    : null;
+
+  const totpEnabled = userRaw?.totpEnabled ?? false;
+  const backupCodesLeft = (userRaw?.backupCodes ?? []).filter((c: any) => !c.used).length;
 
   if (!profileRaw || !settingsRaw) {
     return (
@@ -104,6 +116,37 @@ export default async function ConfiguracionPage() {
               professionalProfile: profile.professionalProfile,
             }}
           />
+        </div>
+      </section>
+
+      {/* ── Security: 2FA ── */}
+      <section className="rounded-xl border border-hairline bg-surface-soft p-6">
+        <h2 className="text-title-sm">Seguridad</h2>
+        <p className="mt-1 text-body-sm text-muted">
+          Autenticación de dos factores (2FA). Protegé tu cuenta con un
+          código temporal de tu app de autenticación.
+        </p>
+
+        <div className="mt-6 space-y-8">
+          {/* TOTP Setup */}
+          <div>
+            <h3 className="text-body-md font-semibold text-ink mb-4">App de autenticación (TOTP)</h3>
+            <TotpSetupCard
+              initialEnabled={totpEnabled}
+              backupCodesLeft={backupCodesLeft}
+            />
+          </div>
+
+          {/* Backup Codes — only show when TOTP is active */}
+          {totpEnabled && (
+            <div className="border-t border-hairline pt-6">
+              <h3 className="text-body-md font-semibold text-ink mb-1">Backup codes</h3>
+              <p className="text-body-sm text-muted mb-4">
+                Códigos de recuperación de un solo uso. Guardalos en un lugar seguro.
+              </p>
+              <BackupCodesCard initialLeft={backupCodesLeft} />
+            </div>
+          )}
         </div>
       </section>
     </div>

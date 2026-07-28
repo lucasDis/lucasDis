@@ -185,14 +185,13 @@ export function ContactForm() {
               mass: 0.8,
             }}
             type={status === "success" ? "button" : "submit"}
-            disabled={status === "loading"}
-            onClick={status === "success" ? handleResetForm : undefined}
-            className={`inline-flex items-center justify-center gap-2.5 h-11 px-6 text-[14px] font-semibold rounded-lg shadow-sm transition-colors duration-200 cursor-pointer ${
+            disabled={status === "loading" || status === "success"}
+            className={`inline-flex items-center justify-center gap-2.5 h-11 px-6 text-[14px] font-semibold rounded-lg shadow-sm transition-colors duration-200 ${
               status === "success"
-                ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                ? "bg-emerald-600 text-white cursor-default"
                 : status === "loading"
                 ? "bg-body-strong text-white/70 cursor-wait"
-                : "bg-[#0a0a0a] hover:bg-primary-active text-white"
+                : "bg-[#0a0a0a] hover:bg-primary-active text-white cursor-pointer"
             }`}
           >
             {status === "loading" && (
